@@ -25,6 +25,10 @@ export const contentText = {
   delete: 'Delete',
   deleteConfirm: 'Delete this content? Pages using it will fall back to their default text.',
   errorFallback: 'Something went wrong. Check your connection and try again.',
+  upload: 'Upload image',
+  uploading: 'Uploading…',
+  uploadFailed: 'Upload failed. Try again.',
+  uploadHelp: 'PNG, JPEG, GIF, WebP, ICO or SVG, up to 1 MB.',
 };
 
 export const richTextText = {

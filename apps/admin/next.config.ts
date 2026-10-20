@@ -6,7 +6,10 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   async rewrites() {
-    return [{ source: '/api/:path*', destination: `${API_URL}/:path*` }];
+    return [
+      { source: '/api/:path*', destination: `${API_URL}/:path*` },
+      { source: '/media/:path*', destination: `${API_URL}/media/:path*` },
+    ];
   },
   experimental: {
     agentFeedback: true,

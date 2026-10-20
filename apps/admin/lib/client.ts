@@ -28,3 +28,16 @@ export const postJson = <T = unknown>(path: string, body: unknown) => callApi<T>
 export const putJson = <T = unknown>(path: string, body: unknown) => callApi<T>('PUT', path, body);
 export const patchJson = <T = unknown>(path: string, body: unknown) => callApi<T>('PATCH', path, body);
 export const deleteJson = <T = unknown>(path: string) => callApi<T>('DELETE', path);
+
+export async function uploadFile(file: File): Promise<Result<{ url: string }>> {
+  try {
+    const form = new FormData();
+    form.append('file', file);
+    const res = await fetch('/api/media', { method: 'POST', body: form });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return { ok: false, error: data.error ?? '', details: [] };
+    return { ok: true, data };
+  } catch {
+    return { ok: false, error: '', details: [] };
+  }
+}

@@ -9,6 +9,7 @@ import { deleteJson, putJson } from '@/lib/client';
 import { fill } from '@/lib/text';
 import type { ContentModel, FieldDefinition } from '@/lib/content-types';
 import type { ContentText } from './text';
+import ImageUpload from './image-upload';
 
 type Values = Record<string, unknown>;
 
@@ -216,9 +217,8 @@ function FieldInput({ field, value, error, text, onChange, richText }: FieldInpu
   const errorId = error ? `${id}-error` : undefined;
   const describedBy = [helpId, errorId].filter(Boolean).join(' ') || undefined;
 
-  const inputClass = `w-full rounded-lg border px-3 py-2 text-zinc-900 outline-none focus:ring-1 ${
-    error ? 'border-red-500 focus:border-red-600 focus:ring-red-600' : 'border-zinc-300 focus:border-zinc-900 focus:ring-zinc-900'
-  }`;
+  const inputClass = `w-full rounded-lg border px-3 py-2 text-zinc-900 outline-none focus:ring-1 ${error ? 'border-red-500 focus:border-red-600 focus:ring-red-600' : 'border-zinc-300 focus:border-zinc-900 focus:ring-zinc-900'
+    }`;
   const common = {
     id,
     'aria-describedby': describedBy,
@@ -313,6 +313,7 @@ function FieldInput({ field, value, error, text, onChange, richText }: FieldInpu
           className={inputClass}
         />
       )}
+      {field.type === 'image' && <ImageUpload inputId={`${id}-file`} text={text} onUploaded={onChange} />}
       {field.type === 'image' && /^(https?:\/\/|\/(?!\/))/i.test(stringValue) && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={stringValue} alt={text.imagePreview} className="mt-2 max-h-40 rounded-lg ring-1 ring-zinc-200" />

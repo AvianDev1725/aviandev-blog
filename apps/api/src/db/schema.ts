@@ -118,3 +118,13 @@ export const contentFragments = pgTable('content_fragments', {
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
+
+export const media = pgTable('media', {
+  id: text('id').primaryKey(),
+  filename: text('filename').notNull(),
+  mimeType: text('mime_type').notNull(),
+  size: integer('size').notNull(),
+  data: text('data').notNull(),
+  uploadedBy: integer('uploaded_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});

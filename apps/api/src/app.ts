@@ -22,6 +22,7 @@ import fragmentsRoute from './routes/content-fragments.js';
 import { canEditPost } from './lib/permissions.js';
 import adminPostsRoute from './routes/admin-posts.js';
 import { notifyPostsChanged } from './lib/revalidate.js';
+import mediaRoute from './routes/media.js';
 
 const app = new Hono<AuthEnv>();
 
@@ -40,6 +41,8 @@ app.route('/content', contentRoute);
 app.route('/content-fragments', fragmentsRoute);
 
 app.route('/admin/posts', adminPostsRoute);
+
+app.route('/media', mediaRoute);
 
 app.get('/', (c) => c.text('Hello Hono!'));
 

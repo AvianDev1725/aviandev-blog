@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: seo.title,
     description: seo.description,
-    icons: favicon ? { icon: favicon } : undefined,
+    icons: favicon ? { icon: favicon, apple: favicon } : undefined,
     robots: { index: false, follow: false },
   };
 }

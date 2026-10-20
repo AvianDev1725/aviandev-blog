@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(siteUrl),
     title: { default: seo.defaultTitle, template: titleTemplate },
     description: seo.description,
-    icons: favicon ? { icon: favicon } : undefined,
+    icons: favicon ? { icon: favicon, apple: favicon } : undefined,
     robots: seo.allowIndexing ? undefined : { index: false, follow: false },
     openGraph: {
       type: 'website',
