@@ -1,24 +1,33 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getContentByCMS } from '@/lib/content';
-import { siteText } from './text';
+import { isSafeLink } from '@aviandev/core/text';
+import { seoText, siteText } from './text';
 import { siteUrl } from '@/lib/site';
 import './globals.css';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const text = await getContentByCMS('web-site', siteText);
+  const seo = await getContentByCMS('web-seo', seoText);
+  const favicon = isSafeLink(seo.favicon) ? seo.favicon : undefined;
+  const titleTemplate = seo.titleTemplate.includes('%s') ? seo.titleTemplate : `%s · ${seo.defaultTitle}`;
+
   return {
     metadataBase: new URL(siteUrl),
-    title: { default: text.siteName, template: `%s · ${text.siteName}` },
-    description: text.tagline,
+    title: { default: seo.defaultTitle, template: titleTemplate },
+    description: seo.description,
+    icons: favicon ? { icon: favicon } : undefined,
+    robots: seo.allowIndexing ? undefined : { index: false, follow: false },
     openGraph: {
       type: 'website',
-      siteName: text.siteName,
-      title: text.siteName,
-      description: text.tagline,
-      locale: 'en_IN',
+      siteName: seo.defaultTitle,
+      title: seo.defaultTitle,
+      description: seo.description,
+      locale: seo.locale,
     },
-    twitter: { card: 'summary_large_image' },
+    twitter: {
+      card: 'summary_large_image',
+      site: seo.twitterHandle || undefined,
+    },
   };
 }
 

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { getContentByCMS } from '@/lib/content';
 import { shellText } from './(dashboard)/text';
+import { isSafeLink } from '@aviandev/core/text';
+import { adminSeoText } from './seo-text';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,9 +17,17 @@ const geistMono = Geist_Mono({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const text = await getContentByCMS('admin-shell', shellText);
-  return { title: text.appName, robots: { index: false, follow: false } };
+  const seo = await getContentByCMS('admin-seo', adminSeoText);
+  const favicon = isSafeLink(seo.favicon) ? seo.favicon : undefined;
+
+  return {
+    title: seo.title,
+    description: seo.description,
+    icons: favicon ? { icon: favicon } : undefined,
+    robots: { index: false, follow: false },
+  };
 }
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html

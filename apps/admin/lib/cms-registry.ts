@@ -8,13 +8,17 @@ import { contentText, richTextText } from '../app/(dashboard)/content/text';
 import { emailKeys, emailText } from '../../api/src/content/email-text';
 import { categoriesText } from '../app/(dashboard)/categories/text';
 import { postEditorText, postsText } from '../app/(dashboard)/posts/text';
-import { categoryText, homeText, postText, siteText } from '../../web/app/text';
+import { categoryText, homeText, postText, seoText, siteText } from '../../web/app/text';
+import { adminSeoText } from '../app/seo-text';
+
+type Value = string | number | boolean;
 
 export type CmsEntry = {
   key: string;
   name: string;
   description: string;
-  fallback: Record<string, string>;
+  fallback: Record<string, Value>;
+  fieldTypes?: Record<string, 'text' | 'longText' | 'image' | 'link'>;
 };
 
 export const cmsRegistry: CmsEntry[] = [
@@ -137,5 +141,20 @@ export const cmsRegistry: CmsEntry[] = [
     name: 'Blog: topic pages',
     description: 'The list of topics, and each topic page.',
     fallback: categoryText,
+  },
+  {
+    key: 'web-seo',
+    name: 'Blog: SEO and site settings',
+    description:
+      'Browser title, search description, favicon, share image and search indexing. The title template must contain %s, which becomes the page title.',
+    fallback: seoText,
+    fieldTypes: { favicon: 'image', shareImage: 'image' },
+  },
+  {
+    key: 'admin-seo',
+    name: 'Admin: title, description and favicon',
+    description: 'How the admin appears in browser tabs. The admin is always hidden from search engines.',
+    fallback: adminSeoText,
+    fieldTypes: { favicon: 'image' },
   },
 ];

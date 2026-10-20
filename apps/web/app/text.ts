@@ -39,3 +39,14 @@ export const categoryText = {
   postsHeading: 'Posts',
   empty: 'No posts in this topic yet.',
 };
+
+export const seoText = {
+  defaultTitle: 'AvianDev',
+  titleTemplate: '%s · AvianDev',
+  description: 'Notes on Next.js, motion and performance.',
+  favicon: '',
+  shareImage: '',
+  twitterHandle: '',
+  locale: 'en_IN',
+  allowIndexing: true,
+};

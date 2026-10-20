@@ -6,13 +6,24 @@ const API_URL = process.env.API_URL ?? 'http://localhost:3000';
 
 type Field = { key: string; label: string; type: string; required: boolean; help: string };
 type Model = { id: number; key: string; fields: Field[] };
+type Value = string | number | boolean;
 
 function toLabel(key: string) {
   return key.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
 }
 
-function toField(key: string, value: string): Field {
-  return { key, label: toLabel(key), type: value.length > 80 ? 'longText' : 'text', required: true, help: '' };
+function toField(key: string, value: Value, typeOverride?: string): Field {
+  const type =
+    typeOverride ??
+    (typeof value === 'boolean'
+      ? 'boolean'
+      : typeof value === 'number'
+        ? 'number'
+        : value.length > 80
+          ? 'longText'
+          : 'text');
+  const required = typeof value === 'string' && value !== '';
+  return { key, label: toLabel(key), type, required, help: '' };
 }
 
 async function main() {
@@ -44,7 +55,7 @@ async function main() {
   const models = new Map(((await api('GET', '/content-models')).data as Model[]).map((m) => [m.key, m]));
 
   for (const entry of cmsRegistry) {
-    const wanted = Object.entries(entry.fallback).map(([key, value]) => toField(key, value));
+    const wanted = Object.entries(entry.fallback).map(([key, value]) => toField(key, value, entry.fieldTypes?.[key]));
     const existing = models.get(entry.key);
 
     if (!existing) {
