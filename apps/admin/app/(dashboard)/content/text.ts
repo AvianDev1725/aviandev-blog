@@ -47,6 +47,13 @@ export const richTextText = {
   linkPrompt: 'Link address (https://… or /page). Leave empty to remove the link.',
   codeLanguage: 'Code language',
   plainText: 'Plain text',
+  insertHtml: 'Insert HTML as content',
+  insertHtmlHint: 'Paste HTML here. It becomes headings, paragraphs, lists and links at your cursor. To show HTML as code, use the code block button instead.',
+  insert: 'Insert',
+  cancel: 'Cancel',
+  write: 'Write',
+  preview: 'Preview',
+  previewEmpty: 'Nothing to preview yet.',
 };
 
 export type ContentText = typeof contentText;
