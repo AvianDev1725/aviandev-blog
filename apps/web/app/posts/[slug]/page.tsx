@@ -5,7 +5,8 @@ import { fill, formatDate } from '@aviandev/core/text';
 import PostContent from '@/components/post-content';
 import { getContentByCMS } from '@/lib/content';
 import { getPost, getPosts } from '@/lib/posts';
-import { postText } from '../../text';
+import { absoluteUrl } from '@/lib/site';
+import { postText, siteText } from '../../text';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -18,9 +19,26 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPost(slug);
+  const [post, site] = await Promise.all([getPost(slug), getContentByCMS('web-site', siteText)]);
   if (!post) return {};
-  return { title: post.title, description: post.excerpt || undefined };
+
+  const url = `/posts/${post.slug}`;
+  return {
+    title: post.title,
+    description: post.excerpt || undefined,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'article',
+      url,
+      siteName: site.siteName,
+      title: post.title,
+      description: post.excerpt || undefined,
+      publishedTime: post.publishedAt ?? undefined,
+      modifiedTime: post.updatedAt,
+      authors: post.authorName ? [post.authorName] : undefined,
+      tags: post.categories.map((category) => category.name),
+    },
+  };
 }
 
 export default async function PostPage({ params }: Props) {
@@ -28,11 +46,31 @@ export default async function PostPage({ params }: Props) {
   const [post, text] = await Promise.all([getPost(slug), getContentByCMS('web-post', postText)]);
   if (!post) notFound();
 
+  const postUrl = absoluteUrl(`/posts/${post.slug}`);
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt || undefined,
+    url: postUrl,
+    mainEntityOfPage: postUrl,
+    image: `${postUrl}/opengraph-image`,
+    datePublished: post.publishedAt ?? undefined,
+    dateModified: post.updatedAt,
+    author: post.authorName ? { '@type': 'Person', name: post.authorName } : undefined,
+    keywords: post.categories.map((category) => category.name).join(', ') || undefined,
+  };
+
   const wasUpdated =
     post.publishedAt !== null && new Date(post.updatedAt).getTime() - new Date(post.publishedAt).getTime() > ONE_DAY;
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
+
       <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-900">
         ← {text.allPosts}
       </Link>

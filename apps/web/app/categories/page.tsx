@@ -6,7 +6,11 @@ import { categoryText } from '../text';
 
 export async function generateMetadata(): Promise<Metadata> {
   const text = await getContentByCMS('web-category', categoryText);
-  return { title: text.topicsTitle, description: text.topicsIntro };
+  return {
+    title: text.topicsTitle,
+    description: text.topicsIntro,
+    alternates: { canonical: '/categories' },
+  };
 }
 
 export default async function CategoriesPage() {

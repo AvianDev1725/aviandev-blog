@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { formatDate } from '@aviandev/core/text';
 import { getManyByCMS } from '@/lib/content';
@@ -5,6 +6,8 @@ import { getPosts } from '@/lib/posts';
 import Banner from '@/components/banner';
 import PostList from '@/components/post-list';
 import { homeBanner, homeText, siteText } from './text';
+
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 export default async function HomePage() {
   const [text, posts] = await Promise.all([

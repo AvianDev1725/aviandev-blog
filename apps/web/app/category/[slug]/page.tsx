@@ -22,7 +22,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const category = await findCategory(slug);
   if (!category) return {};
-  return { title: category.name, description: category.description || undefined };
+
+  return {
+    title: category.name,
+    description: category.description || undefined,
+    alternates: { canonical: `/category/${category.slug}` },
+  };
 }
 
 export default async function CategoryPage({ params }: Props) {

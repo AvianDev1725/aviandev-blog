@@ -2,13 +2,23 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getContentByCMS } from '@/lib/content';
 import { siteText } from './text';
+import { siteUrl } from '@/lib/site';
 import './globals.css';
 
 export async function generateMetadata(): Promise<Metadata> {
   const text = await getContentByCMS('web-site', siteText);
   return {
+    metadataBase: new URL(siteUrl),
     title: { default: text.siteName, template: `%s · ${text.siteName}` },
     description: text.tagline,
+    openGraph: {
+      type: 'website',
+      siteName: text.siteName,
+      title: text.siteName,
+      description: text.tagline,
+      locale: 'en_IN',
+    },
+    twitter: { card: 'summary_large_image' },
   };
 }
 
