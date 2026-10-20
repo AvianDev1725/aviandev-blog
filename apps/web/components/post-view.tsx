@@ -37,7 +37,7 @@ export default function PostView({ post, text, meta, children }: Props) {
           </ul>
         )}
 
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{post.title}</h1>
+        <h1 className="text-3xl font-bold leading-tight tracking-tight text-balance sm:text-5xl">{post.title}</h1>
         {post.excerpt && <p className="text-lg text-zinc-600">{post.excerpt}</p>}
 
         <p className="flex flex-wrap gap-x-2 text-sm text-zinc-500">

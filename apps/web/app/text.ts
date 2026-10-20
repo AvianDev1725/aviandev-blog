@@ -5,6 +5,7 @@ export const siteText = {
   footerCopyright: '© AvianDev. All rights reserved.',
   navLabel: 'Main',
   navTopics: 'Topics',
+  back: 'Back',
 };
 
 export const homeText = {

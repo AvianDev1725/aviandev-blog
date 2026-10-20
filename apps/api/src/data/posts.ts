@@ -49,6 +49,7 @@ const summaryColumns = {
   updatedAt: posts.updatedAt,
   noindex: posts.noindex,
   views: viewCount,
+  readingMinutes: posts.readingMinutes,
 };
 
 export async function getPublishedPosts(categorySlug?: string) {

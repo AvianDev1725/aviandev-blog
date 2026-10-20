@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
   experimental: {
     agentFeedback: true,
   },
+  allowedDevOrigins: ['192.168.1.4'],
   partialPrefetching: true,
   turbopack: {
     rules: {
