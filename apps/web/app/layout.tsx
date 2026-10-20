@@ -30,6 +30,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Link href="/" className="text-lg font-semibold tracking-tight">
               {text.siteName}
             </Link>
+            <nav aria-label={text.navLabel}>
+              <Link href="/categories" className="text-sm font-medium text-zinc-600 hover:text-zinc-900">
+                {text.navTopics}
+              </Link>
+            </nav>
           </div>
         </header>
 

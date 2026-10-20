@@ -3,6 +3,8 @@ export const siteText = {
   tagline: 'Notes on Next.js, motion and performance.',
   skipToContent: 'Skip to content',
   footerCopyright: '© AvianDev. All rights reserved.',
+  navLabel: 'Main',
+  navTopics: 'Topics',
 };
 
 export const homeText = {
@@ -27,4 +29,13 @@ export const postText = {
   byAuthor: 'By {name}',
   published: 'Published',
   updated: 'Updated',
+};
+
+export const categoryText = {
+  topicsTitle: 'Topics',
+  topicsIntro: 'Browse posts by topic.',
+  noTopics: 'No topics yet.',
+  allTopics: 'All topics',
+  postsHeading: 'Posts',
+  empty: 'No posts in this topic yet.',
 };

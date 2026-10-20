@@ -4,6 +4,8 @@ const API_URL = process.env.API_URL ?? 'http://localhost:3000';
 
 export type Category = { id: number; name: string; slug: string };
 
+export type CategoryDetail = Category & { description: string };
+
 export type PostSummary = {
   id: number;
   title: string;
@@ -52,10 +54,10 @@ export async function getPost(slug: string): Promise<Post | null> {
   return apiGet<Post>(`/posts/${encodeURIComponent(slug)}`);
 }
 
-export async function getCategories(): Promise<Category[]> {
+export async function getCategories(): Promise<CategoryDetail[]> {
   'use cache';
   cacheLife('days');
   cacheTag('categories');
 
-  return (await apiGet<Category[]>('/categories')) ?? [];
+  return (await apiGet<CategoryDetail[]>('/categories')) ?? [];
 }

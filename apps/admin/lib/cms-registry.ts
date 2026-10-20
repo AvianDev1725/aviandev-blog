@@ -8,7 +8,7 @@ import { contentText, richTextText } from '../app/(dashboard)/content/text';
 import { emailKeys, emailText } from '../../api/src/content/email-text';
 import { categoriesText } from '../app/(dashboard)/categories/text';
 import { postEditorText, postsText } from '../app/(dashboard)/posts/text';
-import { homeText, postText, siteText } from '../../web/app/text';
+import { categoryText, homeText, postText, siteText } from '../../web/app/text';
 
 export type CmsEntry = {
   key: string;
@@ -131,5 +131,11 @@ export const cmsRegistry: CmsEntry[] = [
     name: 'Blog: post page',
     description: 'Labels on a blog post page. Placeholder: {name}.',
     fallback: postText,
+  },
+  {
+    key: 'web-category',
+    name: 'Blog: topic pages',
+    description: 'The list of topics, and each topic page.',
+    fallback: categoryText,
   },
 ];
