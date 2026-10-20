@@ -14,9 +14,15 @@ export const shellText = {
   categories: 'Categories',
   posts: 'Posts',
   more: 'More',
+  comments: 'Comments',
+  waitingCount: '{count} waiting',
 };
 
 export const dashboardText = {
   welcome: 'Welcome back, {name}',
   subtitle: 'Your posts and tools will appear here.',
+  commentsTitle: 'Comments',
+  commentsWaiting: '{count} waiting for approval',
+  commentsNone: 'Nothing waiting',
+  commentsReview: 'Review',
 };

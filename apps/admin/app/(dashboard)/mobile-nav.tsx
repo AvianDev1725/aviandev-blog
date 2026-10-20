@@ -4,17 +4,19 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { LogOut, MoreHorizontal } from 'lucide-react';
-import { isActivePath, navItems, type Role, type SidebarLabels } from './nav-items';
+import { fill } from '@/lib/text';
+import { isActivePath, navItems, type NavBadges, type Role, type SidebarLabels } from './nav-items';
 
-const TAB_PATHS = ['/', '/posts', '/content', '/categories'];
+const TAB_PATHS = ['/', '/posts', '/comments', '/content'];
 const FULL_SCREEN_PAGES = /^\/posts\/(new|\d+)$/;
 
 type Props = {
   user: { name: string; role: Role; roleLabel: string };
   labels: SidebarLabels;
+  badges: NavBadges;
 };
 
-export default function MobileNav({ user, labels }: Props) {
+export default function MobileNav({ user, labels, badges }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
@@ -25,6 +27,7 @@ export default function MobileNav({ user, labels }: Props) {
   const tabs = items.filter((item) => TAB_PATHS.includes(item.href));
   const extra = items.filter((item) => !TAB_PATHS.includes(item.href));
   const moreActive = extra.some((item) => isActivePath(pathname, item.href));
+  const moreBadge = extra.reduce((sum, item) => sum + (badges[item.href] ?? 0), 0);
   const showTabs = !FULL_SCREEN_PAGES.test(pathname);
 
   useEffect(() => {
@@ -61,7 +64,20 @@ export default function MobileNav({ user, labels }: Props) {
     }`;
 
   const iconClass = (active: boolean) =>
-    `flex h-7 w-12 items-center justify-center rounded-full transition-colors ${active ? 'bg-zinc-900 text-white' : ''}`;
+    `relative flex h-7 w-12 items-center justify-center rounded-full transition-colors ${active ? 'bg-zinc-900 text-white' : ''}`;
+
+  const badgeDot = (count: number) =>
+    count > 0 && (
+      <>
+        <span
+          aria-hidden
+          className="absolute -top-1 right-1 min-w-4 rounded-full bg-amber-500 px-1 text-[10px] font-semibold leading-4 text-white"
+        >
+          {count > 99 ? '99+' : count}
+        </span>
+        <span className="sr-only">{fill(labels.waitingCount, { count })}</span>
+      </>
+    );
 
   return (
     <>
@@ -82,6 +98,7 @@ export default function MobileNav({ user, labels }: Props) {
                   <Link href={href} aria-current={active ? 'page' : undefined} className={tabClass(active)}>
                     <span className={iconClass(active)}>
                       <Icon size={20} aria-hidden />
+                      {badgeDot(badges[href] ?? 0)}
                     </span>
                     <span className="max-w-full truncate px-1">{label}</span>
                   </Link>
@@ -99,6 +116,7 @@ export default function MobileNav({ user, labels }: Props) {
               >
                 <span className={iconClass(moreActive)}>
                   <MoreHorizontal size={20} aria-hidden />
+                  {badgeDot(moreBadge)}
                 </span>
                 <span>{labels.more}</span>
               </button>

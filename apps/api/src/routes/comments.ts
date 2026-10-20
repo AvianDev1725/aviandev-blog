@@ -8,7 +8,7 @@ import { comments, posts, users } from '../db/schema.js';
 import { getPublicComment, getPublicComments } from '../data/comments.js';
 import { requireAuth, type AuthEnv } from '../middleware/auth.js';
 import { rateLimit } from '../middleware/rate-limit.js';
-import { cleanBody, GUEST_AVATARS, initialStatus, looksLikeBot, MAX_COMMENT_LENGTH } from '../lib/comment-rules.js';
+import { cleanBody, GUEST_AVATARS, initialStatus, isStaff, looksLikeBot, MAX_COMMENT_LENGTH } from '../lib/comment-rules.js';
 import { emails, sendEmail } from '../lib/email.js';
 import { notifyChanged } from '../lib/revalidate.js';
 import { getSessionUser, SESSION_COOKIE } from '../lib/session.js';
@@ -35,6 +35,8 @@ const passThrough = createMiddleware(async (_c, next) => next());
 const commentLimit =
   process.env.NODE_ENV === 'test' ? passThrough : rateLimit({ windowMs: 60 * 1000, max: 5 });
 
+const BOT_RESPONSE = { status: 'pending', comment: null } as const;
+
 async function findPublishedPost(slug: string) {
   const [post] = await db
     .select({ id: posts.id, slug: posts.slug, title: posts.title, authorId: posts.authorId })
@@ -47,12 +49,15 @@ async function refreshPost(slug: string) {
   await notifyChanged([`post:${slug}`]);
 }
 
-async function notifyAuthor(post: { title: string; authorId: number }, body: string) {
+async function notifyAuthor(post: { title: string; authorId: number | null }, body: string) {
+  if (post.authorId === null) return;
+  const authorId = post.authorId;
+
   try {
     const [author] = await db
       .select({ email: users.email, status: users.status })
       .from(users)
-      .where(eq(users.id, post.authorId));
+      .where(eq(users.id, authorId));
     if (!author || author.status !== 'active') return;
 
     const [recent] = await db
@@ -61,7 +66,7 @@ async function notifyAuthor(post: { title: string; authorId: number }, body: str
       .innerJoin(posts, eq(comments.postId, posts.id))
       .where(
         and(
-          eq(posts.authorId, post.authorId),
+          eq(posts.authorId, authorId),
           isNull(comments.userId),
           gt(comments.createdAt, new Date(Date.now() - 60 * 60 * 1000)),
         ),
@@ -86,7 +91,6 @@ commentsRoute.get('/', async (c) => {
 
 commentsRoute.post('/', commentLimit, validateJson(createSchema), async (c) => {
   const input = c.req.valid('json');
-  if (looksLikeBot(input)) return c.json({ status: 'pending', comment: null }, 202);
 
   const body = cleanBody(input.body);
   if (!body) return c.json({ error: 'Write a comment first' }, 400);
@@ -104,17 +108,25 @@ commentsRoute.post('/', commentLimit, validateJson(createSchema), async (c) => {
       .from(users)
       .where(eq(users.id, sessionUser.id));
     if (!user) return c.json({ error: 'Not logged in' }, 401);
+    if (!isStaff(user.role) && looksLikeBot(input)) return c.json(BOT_RESPONSE, 202);
     if (user.bannedAt) return c.json({ error: "You can't comment on this blog" }, 403);
     if (!user.emailVerifiedAt) return c.json({ error: 'Confirm your email to comment' }, 403);
     commenter = { id: user.id, role: user.role };
-  } else if (!input.guestAvatar) {
-    return c.json({ error: 'Choose an avatar' }, 400);
+  } else {
+    if (looksLikeBot(input)) return c.json(BOT_RESPONSE, 202);
+    if (!input.guestAvatar) return c.json({ error: 'Choose an avatar' }, 400);
   }
 
   let parentId: number | null = null;
   if (input.parentId) {
     const [parent] = await db
-      .select({ id: comments.id, parentId: comments.parentId, postId: comments.postId, status: comments.status, deletedAt: comments.deletedAt })
+      .select({
+        id: comments.id,
+        parentId: comments.parentId,
+        postId: comments.postId,
+        status: comments.status,
+        deletedAt: comments.deletedAt,
+      })
       .from(comments)
       .where(eq(comments.id, input.parentId));
     if (!parent || parent.postId !== post.id || parent.status !== 'approved' || parent.deletedAt) {

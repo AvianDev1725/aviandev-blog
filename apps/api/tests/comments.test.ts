@@ -192,3 +192,17 @@ describe('banning', () => {
     expect((await send('POST', `/moderation/readers/${admin.id}/ban`, superAdmin)).status).toBe(400);
   });
 });
+
+describe('admin shortcuts', () => {
+  it("doesn't treat a quick staff reply as a bot", async () => {
+    const res = await send('POST', '/comments', author, { postSlug: 'hello', body: 'Quick reply', startedAt: Date.now() });
+    expect(res.status).toBe(201);
+  });
+
+  it('counts waiting comments for the badge', async () => {
+    await post(undefined, { body: 'Guest one', guestAvatar: 'owl' });
+    await post(undefined, { body: 'Guest two', guestAvatar: 'robin' });
+    expect(await (await send('GET', '/moderation/summary', author)).json()).toEqual({ pending: 2 });
+    expect(await (await send('GET', '/moderation/summary', otherAdmin)).json()).toEqual({ pending: 0 });
+  });
+});

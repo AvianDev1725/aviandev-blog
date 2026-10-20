@@ -10,6 +10,7 @@ import { categoriesText } from '../app/(dashboard)/categories/text';
 import { postEditorText, postsText } from '../app/(dashboard)/posts/text';
 import { categoryText, homeText, postText, seoText, siteText, previewText, accountText, commentText } from '../../web/app/text';
 import { adminSeoText } from '../app/seo-text';
+import { commentsText } from '../app/(dashboard)/comments/text';
 
 type Value = string | number | boolean;
 
@@ -197,5 +198,11 @@ export const cmsRegistry: CmsEntry[] = [
     name: 'Blog: comments',
     description: 'The comment section on posts, including the 12 guest bird names. Placeholders: {count}, {name}.',
     fallback: commentText,
+  },
+  {
+    key: 'admin-comments',
+    name: 'Admin: comments',
+    description: 'The comment moderation page. Placeholders: {count}, {title}, {name}.',
+    fallback: commentsText,
   },
 ];

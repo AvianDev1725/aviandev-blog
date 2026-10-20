@@ -12,6 +12,17 @@ const STATUSES: Status[] = ['pending', 'approved', 'spam'];
 const moderation = new Hono<AuthEnv>();
 moderation.use('*', ...canWrite);
 
+moderation.get('/summary', async (c) => {
+  const user = c.get('user');
+  const scope = user.role === 'super_admin' ? undefined : eq(posts.authorId, user.id);
+  const [row] = await db
+    .select({ pending: sql<number>`count(*)::int` })
+    .from(comments)
+    .innerJoin(posts, eq(comments.postId, posts.id))
+    .where(and(eq(comments.status, 'pending'), isNull(comments.deletedAt), scope));
+  return c.json({ pending: row?.pending ?? 0 });
+});
+
 async function refreshPosts(postIds: number[]) {
   if (postIds.length === 0) return;
   const rows = await db.select({ slug: posts.slug }).from(posts).where(inArray(posts.id, [...new Set(postIds)]));
