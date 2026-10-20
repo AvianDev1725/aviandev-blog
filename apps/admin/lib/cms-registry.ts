@@ -163,4 +163,22 @@ export const cmsRegistry: CmsEntry[] = [
     description: 'The banner and messages on private post previews.',
     fallback: previewText,
   },
+    {
+    key: emailKeys.verifyEmail,
+    name: 'Email: confirm email (readers)',
+    description: 'Sent when a reader signs up. Placeholders: {name}, {url}.',
+    fallback: emailText.verifyEmail,
+  },
+  {
+    key: emailKeys.resetPassword,
+    name: 'Email: reset password',
+    description: 'Sent when someone asks to reset their password. Placeholders: {name}, {url}.',
+    fallback: emailText.resetPassword,
+  },
+  {
+    key: emailKeys.accountExists,
+    name: 'Email: account already exists',
+    description: 'Sent when someone signs up with an email that already has an account. Placeholders: {name}, {loginUrl}, {resetUrl}.',
+    fallback: emailText.accountExists,
+  },
 ];

@@ -27,6 +27,7 @@ export async function sendEmail(email: Email) {
 }
 
 const adminUrl = () => process.env.ADMIN_URL ?? 'http://localhost:3001';
+const blogUrl = () => process.env.BLOG_URL ?? 'http://localhost:3002';
 
 function fill(template: string, values: Record<string, string>) {
   return template.replace(/\{(\w+)\}/g, (match, key: string) => (Object.hasOwn(values, key) ? values[key] : match));
@@ -52,5 +53,23 @@ export const emails = {
     const t = await getText(emailKeys.invite, emailText.invite);
     const roleText = role === 'super_admin' ? t.roleSuperAdmin : t.roleAdmin;
     return { subject: t.subject, text: fill(t.body, { role: roleText, url: inviteUrl }) };
+  },
+
+    async verifyEmail(name: string, token: string) {
+    const t = await getText(emailKeys.verifyEmail, emailText.verifyEmail);
+    return { subject: t.subject, text: fill(t.body, { name, url: `${blogUrl()}/verify-email?token=${token}` }) };
+  },
+
+  async resetPassword(name: string, token: string) {
+    const t = await getText(emailKeys.resetPassword, emailText.resetPassword);
+    return { subject: t.subject, text: fill(t.body, { name, url: `${blogUrl()}/reset-password?token=${token}` }) };
+  },
+
+  async accountExists(name: string) {
+    const t = await getText(emailKeys.accountExists, emailText.accountExists);
+    return {
+      subject: t.subject,
+      text: fill(t.body, { name, loginUrl: `${blogUrl()}/login`, resetUrl: `${blogUrl()}/forgot-password` }),
+    };
   },
 };

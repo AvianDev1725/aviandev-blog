@@ -22,6 +22,9 @@ export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
+  firstName: text('first_name'),
+  lastName: text('last_name'),
+  emailVerifiedAt: timestamp('email_verified_at'),
   passwordHash: text('password_hash').notNull(),
   role: userRole('role').notNull().default('reader'),
   status: userStatus('status').notNull().default('pending'),
@@ -156,3 +159,17 @@ export const viewVisitors = pgTable(
   },
   (table) => [index('view_visitors_day_idx').on(table.day)],
 );
+
+export const tokenPurpose = pgEnum('token_purpose', ['verify_email', 'reset_password']);
+
+export const userTokens = pgTable('user_tokens', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  purpose: tokenPurpose('purpose').notNull(),
+  tokenHash: text('token_hash').notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  usedAt: timestamp('used_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});

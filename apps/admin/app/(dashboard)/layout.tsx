@@ -10,6 +10,7 @@ export const instant = false;
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
   if (!user) redirect('/login');
+  if (user.role === 'reader') redirect(process.env.BLOG_URL ?? 'http://localhost:3002');
 
   const [text, cookieStore] = await Promise.all([getContentByCMS('admin-shell', shellText), cookies()]);
   const collapsed = cookieStore.get('sidebar')?.value === 'collapsed';

@@ -7,9 +7,10 @@ import { db } from '../db/index.js';
 import { users } from '../db/schema.js';
 import { sendEmail, emails } from '../lib/email.js';
 import { hashPassword, verifyPassword } from '../lib/password.js';
-import { createSession, getSessionUser, deleteSession, SESSION_COOKIE } from '../lib/session.js';
+import { getSessionUser, deleteSession, SESSION_COOKIE } from '../lib/session.js';
 import { validateJson } from '../lib/validate.js';
 import { nameField, emailField, passwordField } from '../schemas/user.js';
+import { startSession } from '../lib/session-cookie.js';
 
 const loginSchema = z.object({
   email: z.string().trim().toLowerCase().min(1, 'Email is required'),
@@ -46,16 +47,19 @@ auth.post('/login', validateJson(loginSchema), async (c) => {
     return c.json({ error: 'Invalid email or password' }, 401);
   }
 
-  const { token, expiresAt } = await createSession(user.id);
-  setCookie(c, SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'Lax',
-    path: '/',
-    expires: expiresAt,
-  });
+  await startSession(c, user.id);
 
-  return c.json({ user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+  return c.json({
+    user: {
+      id: user.id,
+      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+      emailVerified: user.emailVerifiedAt !== null,
+    },
+  });
 });
 
 auth.post(

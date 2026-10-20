@@ -25,6 +25,7 @@ import { notifyPostsChanged } from './lib/revalidate.js';
 import mediaRoute from './routes/media.js';
 import previewRoute from './routes/preview.js';
 import viewsRoute from './routes/views.js';
+import readers from './routes/readers.js';
 
 const app = new Hono<AuthEnv>();
 
@@ -49,6 +50,8 @@ app.route('/media', mediaRoute);
 app.route('/preview', previewRoute);
 
 app.route('/views', viewsRoute);
+
+app.route('/readers', readers);
 
 app.get('/', (c) => c.text('Hello Hono!'));
 

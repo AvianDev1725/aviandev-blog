@@ -16,7 +16,16 @@ export async function createSession(userId: number) {
 export async function getSessionUser(token: string) {
   const [row] = await db
     .select({
-      user: { id: users.id, name: users.name, email: users.email, role: users.role, status: users.status },
+      user: {
+        id: users.id, 
+        name: users.name, 
+        email: users.email, 
+        role: users.role, 
+        status: users.status, 
+        firstName: users.firstName,
+        lastName: users.lastName,
+        emailVerifiedAt: users.emailVerifiedAt,
+      },
       expiresAt: sessions.expiresAt,
     })
     .from(sessions)
