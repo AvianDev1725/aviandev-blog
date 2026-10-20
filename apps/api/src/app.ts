@@ -24,6 +24,7 @@ import adminPostsRoute from './routes/admin-posts.js';
 import { notifyPostsChanged } from './lib/revalidate.js';
 import mediaRoute from './routes/media.js';
 import previewRoute from './routes/preview.js';
+import viewsRoute from './routes/views.js';
 
 const app = new Hono<AuthEnv>();
 
@@ -46,6 +47,8 @@ app.route('/admin/posts', adminPostsRoute);
 app.route('/media', mediaRoute);
 
 app.route('/preview', previewRoute);
+
+app.route('/views', viewsRoute);
 
 app.get('/', (c) => c.text('Hello Hono!'));
 

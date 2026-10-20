@@ -10,6 +10,8 @@ import {
   jsonb,
   type AnyPgColumn,
   primaryKey,
+  date,
+  index,
 } from 'drizzle-orm/pg-core';
 import type { FieldDefinition } from '../content/field-types.js';
 
@@ -132,3 +134,24 @@ export const media = pgTable('media', {
   uploadedBy: integer('uploaded_by').references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
+
+export const postViews = pgTable(
+  'post_views',
+  {
+    postId: integer('post_id')
+      .notNull()
+      .references(() => posts.id, { onDelete: 'cascade' }),
+    day: date('day').notNull(),
+    views: integer('views').notNull().default(0),
+  },
+  (table) => [primaryKey({ columns: [table.postId, table.day] })],
+);
+
+export const viewVisitors = pgTable(
+  'view_visitors',
+  {
+    hash: text('hash').primaryKey(),
+    day: date('day').notNull(),
+  },
+  (table) => [index('view_visitors_day_idx').on(table.day)],
+);

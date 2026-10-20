@@ -6,6 +6,7 @@ import { absoluteUrl } from '@/lib/site';
 import { postText, siteText } from '../../text';
 import { isSafeLink } from '@aviandev/core/text';
 import PostView from '@/components/post-view';
+import ViewCounter from '@/components/view-counter';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -69,7 +70,11 @@ export default async function PostPage({ params }: Props) {
   };
 
   return (
-    <PostView post={post} text={text}>
+    <PostView
+      post={post}
+      text={text}
+      meta={<ViewCounter slug={post.slug} one={text.viewsOne} many={text.viewsMany} />}
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}

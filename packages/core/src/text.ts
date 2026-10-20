@@ -18,3 +18,7 @@ export function formatDate(value: string | Date, locale = 'en-IN') {
 export function isSafeLink(value: string) {
   return /^https?:\/\//i.test(value) || /^mailto:/i.test(value) || (value.startsWith('/') && !value.startsWith('//'));
 }
+
+export function formatCount(count: number, one: string, many: string, locale = 'en-IN') {
+  return count === 1 ? one : fill(many, { count: new Intl.NumberFormat(locale).format(count) });
+}

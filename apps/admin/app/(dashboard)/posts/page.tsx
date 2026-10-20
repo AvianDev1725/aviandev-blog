@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import { apiGet, getCurrentUser } from '@/lib/api';
 import { getContentByCMS } from '@/lib/content';
 import { fill, formatDate } from '@/lib/text';
+import { formatCount } from '@aviandev/core/text';
 import { postsText } from './text';
 
 export const instant = false;
@@ -15,6 +16,7 @@ type PostRow = {
   publishedAt: string | null;
   updatedAt: string;
   authorName: string | null;
+  views: number;
   categories: { id: number; name: string; slug: string }[];
 };
 
@@ -108,6 +110,7 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
                     {post.published && post.publishedAt
                       ? fill(text.publishedOn, { date: formatDate(post.publishedAt) })
                       : fill(text.editedOn, { date: formatDate(post.updatedAt) })}
+                    {post.published && <> · {formatCount(post.views, text.viewsOne, text.viewsMany)}</>}
                     {showAuthor && <> · {post.authorName ? fill(text.byAuthor, { name: post.authorName }) : text.unknownAuthor}</>}
                   </p>
                 </div>

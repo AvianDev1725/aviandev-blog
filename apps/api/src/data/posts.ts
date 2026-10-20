@@ -1,10 +1,12 @@
 import { and, desc, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { db } from '../db/index.js';
-import { categories, postCategories, posts, users } from '../db/schema.js';
+import { categories, postCategories, posts, users, postViews } from '../db/schema.js';
 
 export type NewPost = typeof posts.$inferInsert;
 export type PostInput = NewPost & { categoryIds?: number[] };
 type Post = typeof posts.$inferSelect;
+
+const viewCount = sql<number>`(select coalesce(sum(${postViews.views}), 0)::int from ${postViews} where ${postViews.postId} = ${posts.id})`;
 
 async function attachCategories<T extends { id: number }>(rows: T[]) {
   if (rows.length === 0) return [];
@@ -45,6 +47,7 @@ const summaryColumns = {
   publishedAt: posts.publishedAt,
   updatedAt: posts.updatedAt,
   noindex: posts.noindex,
+  views: viewCount,
 };
 
 export async function getPublishedPosts(categorySlug?: string) {
@@ -127,6 +130,7 @@ export async function listPostsForEditor(user: { id: number; role: string }) {
       updatedAt: posts.updatedAt,
       authorId: posts.authorId,
       authorName: users.name,
+      views: viewCount,
     })
     .from(posts)
     .leftJoin(users, eq(posts.authorId, users.id))

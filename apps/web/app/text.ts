@@ -29,6 +29,8 @@ export const postText = {
   byAuthor: 'By {name}',
   published: 'Published',
   updated: 'Updated',
+  viewsOne: '1 view',
+  viewsMany: '{count} views',
 };
 
 export const categoryText = {

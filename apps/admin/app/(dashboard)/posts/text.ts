@@ -18,6 +18,8 @@ export const postsText = {
   empty: 'No posts yet. Write your first one.',
   emptyDrafts: 'No drafts.',
   emptyPublished: 'Nothing published yet.',
+  viewsOne: '1 view',
+  viewsMany: '{count} views',
 };
 
 export type PostsText = typeof postsText;

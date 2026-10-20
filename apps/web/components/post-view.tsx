@@ -7,9 +7,9 @@ import type { postText } from '@/app/text';
 
 const ONE_DAY = 24 * 60 * 60 * 1000;
 
-type Props = { post: Post; text: typeof postText; children?: ReactNode };
+type Props = { post: Post; text: typeof postText; meta?: ReactNode; children?: ReactNode };
 
-export default function PostView({ post, text, children }: Props) {
+export default function PostView({ post, text, meta, children }: Props) {
   const wasUpdated =
     post.publishedAt !== null && new Date(post.updatedAt).getTime() - new Date(post.publishedAt).getTime() > ONE_DAY;
 
@@ -52,6 +52,7 @@ export default function PostView({ post, text, children }: Props) {
               {text.updated} <time dateTime={post.updatedAt}>{formatDate(post.updatedAt)}</time>
             </span>
           )}
+          {meta}
         </p>
       </header>
 
