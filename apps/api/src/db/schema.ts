@@ -17,6 +17,8 @@ import type { FieldDefinition } from '../content/field-types.js';
 
 export const userRole = pgEnum('user_role', ['reader', 'admin', 'super_admin']);
 export const userStatus = pgEnum('user_status', ['pending', 'active', 'rejected']);
+export const tokenPurpose = pgEnum('token_purpose', ['verify_email', 'reset_password']);
+export const commentStatus = pgEnum('comment_status', ['pending', 'approved', 'spam']);
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -31,6 +33,7 @@ export const users = pgTable('users', {
   reviewedBy: integer('reviewed_by').references((): AnyPgColumn => users.id, { onDelete: 'set null' }),
   reviewedAt: timestamp('reviewed_at'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
+  bannedAt: timestamp('banned_at'),
 });
 
 export const posts = pgTable('posts', {
@@ -160,8 +163,6 @@ export const viewVisitors = pgTable(
   (table) => [index('view_visitors_day_idx').on(table.day)],
 );
 
-export const tokenPurpose = pgEnum('token_purpose', ['verify_email', 'reset_password']);
-
 export const userTokens = pgTable('user_tokens', {
   id: serial('id').primaryKey(),
   userId: integer('user_id')
@@ -173,3 +174,27 @@ export const userTokens = pgTable('user_tokens', {
   usedAt: timestamp('used_at'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
+
+export const comments = pgTable(
+  'comments',
+  {
+    id: serial('id').primaryKey(),
+    postId: integer('post_id')
+      .notNull()
+      .references(() => posts.id, { onDelete: 'cascade' }),
+    parentId: integer('parent_id').references((): AnyPgColumn => comments.id, { onDelete: 'cascade' }),
+    userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    guestAvatar: text('guest_avatar'),
+    body: text('body').notNull(),
+    status: commentStatus('status').notNull().default('pending'),
+    editedAt: timestamp('edited_at'),
+    deletedAt: timestamp('deleted_at'),
+    moderatedBy: integer('moderated_by').references(() => users.id, { onDelete: 'set null' }),
+    moderatedAt: timestamp('moderated_at'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('comments_post_status_idx').on(table.postId, table.status, table.createdAt),
+    index('comments_parent_idx').on(table.parentId),
+  ],
+);

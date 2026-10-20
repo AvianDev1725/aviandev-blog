@@ -180,6 +180,12 @@ export const cmsRegistry: CmsEntry[] = [
     description: 'Sent when someone signs up with an email that already has an account. Placeholders: {name}, {loginUrl}, {resetUrl}.',
     fallback: emailText.accountExists,
   },
+    {
+    key: emailKeys.commentWaiting,
+    name: 'Email: guest comment waiting',
+    description: "Sent to a post's author when a guest comment needs approval. Placeholders: {postTitle}, {comment}, {url}.",
+    fallback: emailText.commentWaiting,
+  },
   {
     key: 'web-account',
     name: 'Blog: accounts',

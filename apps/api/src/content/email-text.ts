@@ -6,6 +6,7 @@ export const emailKeys = {
   verifyEmail: 'email-verify',
   resetPassword: 'email-reset-password',
   accountExists: 'email-account-exists',
+  commentWaiting: 'email-comment-waiting',
 } as const;
 
 export const emailText = {
@@ -29,7 +30,7 @@ export const emailText = {
     roleAdmin: 'an admin',
     roleSuperAdmin: 'a super admin',
   },
-    verifyEmail: {
+  verifyEmail: {
     subject: 'Confirm your email for AvianDev',
     body:
       'Hi {name},\n\nThanks for joining AvianDev. Confirm your email to start commenting:\n\n{url}\n\n' +
@@ -46,5 +47,9 @@ export const emailText = {
     body:
       'Hi {name},\n\nSomeone tried to sign up with this email, but you already have an account.\n\n' +
       "Log in: {loginUrl}\nForgot your password? {resetUrl}\n\nIf this wasn't you, you can ignore this email.",
+  },
+  commentWaiting: {
+    subject: 'New comment waiting on “{postTitle}”',
+    body: 'A guest left a comment on “{postTitle}”:\n\n{comment}\n\nApprove or remove it here: {url}',
   },
 };

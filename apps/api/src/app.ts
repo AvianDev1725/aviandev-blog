@@ -26,6 +26,8 @@ import mediaRoute from './routes/media.js';
 import previewRoute from './routes/preview.js';
 import viewsRoute from './routes/views.js';
 import readers from './routes/readers.js';
+import commentsRoute from './routes/comments.js';
+import moderation from './routes/moderation.js';
 
 const app = new Hono<AuthEnv>();
 
@@ -52,6 +54,9 @@ app.route('/preview', previewRoute);
 app.route('/views', viewsRoute);
 
 app.route('/readers', readers);
+
+app.route('/comments', commentsRoute);
+app.route('/moderation', moderation);
 
 app.get('/', (c) => c.text('Hello Hono!'));
 

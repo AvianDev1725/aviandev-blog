@@ -1,6 +1,6 @@
 import app from '../src/app.js';
 import { db } from '../src/db/index.js';
-import { categories, invitations, posts, users, contentModels, contentFragments, media, postViews, viewVisitors, userTokens } from '../src/db/schema.js';
+import { categories, invitations, posts, users, contentModels, contentFragments, media, postViews, viewVisitors, userTokens, comments } from '../src/db/schema.js';
 import { hashPassword } from '../src/lib/password.js';
 
 export const PASSWORD = 'test-password-123';
@@ -47,4 +47,5 @@ export async function resetDb() {
   await db.delete(viewVisitors);
   await db.delete(postViews);
   await db.delete(userTokens);
+  await db.delete(comments);
 }

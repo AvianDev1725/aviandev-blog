@@ -55,7 +55,7 @@ export const emails = {
     return { subject: t.subject, text: fill(t.body, { role: roleText, url: inviteUrl }) };
   },
 
-    async verifyEmail(name: string, token: string) {
+  async verifyEmail(name: string, token: string) {
     const t = await getText(emailKeys.verifyEmail, emailText.verifyEmail);
     return { subject: t.subject, text: fill(t.body, { name, url: `${blogUrl()}/verify-email?token=${token}` }) };
   },
@@ -70,6 +70,15 @@ export const emails = {
     return {
       subject: t.subject,
       text: fill(t.body, { name, loginUrl: `${blogUrl()}/login`, resetUrl: `${blogUrl()}/forgot-password` }),
+    };
+  },
+
+  async commentWaiting(postTitle: string, comment: string) {
+    const t = await getText(emailKeys.commentWaiting, emailText.commentWaiting);
+    const preview = comment.length > 500 ? `${comment.slice(0, 500)}…` : comment;
+    return {
+      subject: fill(t.subject, { postTitle }),
+      text: fill(t.body, { postTitle, comment: preview, url: `${adminUrl()}/comments` }),
     };
   },
 };
