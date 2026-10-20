@@ -53,6 +53,7 @@ export const seoText = {
   twitterHandle: '',
   locale: 'en_IN',
   allowIndexing: true,
+  appIcon: '',
 };
 
 export const previewText = {

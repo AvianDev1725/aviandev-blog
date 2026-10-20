@@ -145,10 +145,9 @@ export const cmsRegistry: CmsEntry[] = [
   {
     key: 'web-seo',
     name: 'Blog: SEO and site settings',
-    description:
-      'Browser title, search description, favicon, share image and search indexing. The title template must contain %s, which becomes the page title.',
+    description: 'Browser title, search description, favicon, share image, app icon and search indexing. The title template must contain %s, which becomes the page title. The app icon should be a square PNG, 512 × 512.',
     fallback: seoText,
-    fieldTypes: { favicon: 'image', shareImage: 'image' },
+    fieldTypes: { favicon: 'image', shareImage: 'image', appIcon: 'image' },
   },
   {
     key: 'admin-seo',

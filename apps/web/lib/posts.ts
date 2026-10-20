@@ -1,4 +1,5 @@
 import { cacheLife, cacheTag } from 'next/cache';
+import type { DocNode } from '@/components/post-content';
 
 const API_URL = process.env.API_URL ?? 'http://localhost:3000';
 
@@ -20,11 +21,12 @@ export type PostSummary = {
 };
 
 export type Post = PostSummary & {
-  content: { type: 'doc'; content?: unknown[] };
+  content: DocNode;
   authorName: string | null;
   seoTitle: string;
   seoDescription: string;
   shareImage: string;
+  published: boolean;
 };
 
 async function apiGet<T>(path: string): Promise<T | null> {
@@ -36,7 +38,7 @@ async function apiGet<T>(path: string): Promise<T | null> {
 
 async function fetchPosts(categorySlug: string) {
   'use cache';
-  cacheLife('days');
+  cacheLife('hours');
   cacheTag('posts', 'categories');
 
   const query = categorySlug ? `?category=${encodeURIComponent(categorySlug)}` : '';
