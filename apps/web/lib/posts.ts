@@ -15,6 +15,8 @@ export type PostSummary = {
   updatedAt: string;
   categories: Category[];
   noindex: boolean;
+  views: number;
+  readingMinutes: number;
 };
 
 export type Post = PostSummary & {

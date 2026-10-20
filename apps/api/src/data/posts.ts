@@ -1,6 +1,7 @@
 import { and, desc, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { categories, postCategories, posts, users, postViews } from '../db/schema.js';
+import { readingMinutes } from '../lib/reading-time.js';
 
 export type NewPost = typeof posts.$inferInsert;
 export type PostInput = NewPost & { categoryIds?: number[] };
@@ -88,7 +89,11 @@ export async function getPostById(id: number) {
 export async function createPost({ categoryIds = [], ...input }: PostInput) {
   const [post] = await db
     .insert(posts)
-    .values({ ...input, publishedAt: input.published ? new Date() : null })
+    .values({
+      ...input,
+      publishedAt: input.published ? new Date() : null,
+      readingMinutes: readingMinutes(input.content),
+    })
     .returning();
 
   await setPostCategories(post.id, categoryIds);
@@ -103,6 +108,7 @@ export async function updatePost(id: number, { categoryIds, ...input }: Partial<
       ...input,
       updatedAt: new Date(),
       ...(input.published === true && { publishedAt: sql`coalesce(${posts.publishedAt}, now())` }),
+      ...(input.content !== undefined && { readingMinutes: readingMinutes(input.content) }),
     })
     .where(eq(posts.id, id))
     .returning();
@@ -131,6 +137,7 @@ export async function listPostsForEditor(user: { id: number; role: string }) {
       authorId: posts.authorId,
       authorName: users.name,
       views: viewCount,
+      readingMinutes: posts.readingMinutes,
     })
     .from(posts)
     .leftJoin(users, eq(posts.authorId, users.id))

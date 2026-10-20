@@ -20,6 +20,7 @@ export const postsText = {
   emptyPublished: 'Nothing published yet.',
   viewsOne: '1 view',
   viewsMany: '{count} views',
+  readingTime: '{count} min read',
 };
 
 export type PostsText = typeof postsText;

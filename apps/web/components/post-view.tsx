@@ -52,6 +52,7 @@ export default function PostView({ post, text, meta, children }: Props) {
               {text.updated} <time dateTime={post.updatedAt}>{formatDate(post.updatedAt)}</time>
             </span>
           )}
+          <span>{fill(text.readingTime, { count: post.readingMinutes })}</span>
           {meta}
         </p>
       </header>

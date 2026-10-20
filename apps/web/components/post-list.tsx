@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { formatCount, formatDate } from '@aviandev/core/text';
+import { fill, formatCount, formatDate } from '@aviandev/core/text';
 import type { PostSummary } from '@/lib/posts';
 import { getContentByCMS } from '@/lib/content';
 import { postText } from '@/app/text';
@@ -21,7 +21,13 @@ export default async function PostList({ posts, emptyMessage, headingLevel: Head
         <li key={post.id}>
           <article className="space-y-2 py-6">
             <p className="flex flex-wrap gap-x-2 text-sm text-zinc-500">
-              {post.publishedAt && <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>}
+              {post.publishedAt && (
+                <>
+                  <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
+                  <span aria-hidden>·</span>
+                </>
+              )}
+              <span>{fill(text.readingTime, { count: post.readingMinutes })}</span>
               {post.views > 0 && (
                 <>
                   <span aria-hidden>·</span>

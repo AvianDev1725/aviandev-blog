@@ -1,0 +1,1 @@
+ALTER TABLE "posts" ADD COLUMN "reading_minutes" integer DEFAULT 1 NOT NULL;

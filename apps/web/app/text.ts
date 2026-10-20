@@ -31,6 +31,7 @@ export const postText = {
   updated: 'Updated',
   viewsOne: '1 view',
   viewsMany: '{count} views',
+  readingTime: '{count} min read',
 };
 
 export const categoryText = {

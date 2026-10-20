@@ -11,7 +11,8 @@
     "db:migrate:test": "dotenv run -f .env.test -- drizzle-kit migrate",
     "create:super-admin": "tsx scripts/create-super-admin.ts",
     "check:password": "tsx scripts/check-password.ts",
-    "media:to-r2": "dotenv run -f .env -- tsx scripts/move-media-to-r2.ts"
+    "media:to-r2": "dotenv run -f .env -- tsx scripts/move-media-to-r2.ts",
+    "posts:reading-time": "dotenv run -f .env -- tsx scripts/backfill-reading-time.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1153.0",

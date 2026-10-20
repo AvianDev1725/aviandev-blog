@@ -17,6 +17,7 @@ type PostRow = {
   updatedAt: string;
   authorName: string | null;
   views: number;
+  readingMinutes: number;
   categories: { id: number; name: string; slug: string }[];
 };
 
@@ -67,9 +68,8 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
             key={tab.key}
             href={tab.href}
             aria-current={filter === tab.key ? 'page' : undefined}
-            className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-              filter === tab.key ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-100'
-            }`}
+            className={`rounded-full px-3 py-1.5 text-sm font-medium ${filter === tab.key ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-100'
+              }`}
           >
             {tab.label}
           </Link>
@@ -88,9 +88,8 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-medium text-zinc-900">{title}</p>
                     <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        post.published ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
-                      }`}
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${post.published ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+                        }`}
                     >
                       {post.published ? text.statusPublished : text.statusDraft}
                     </span>
@@ -105,11 +104,12 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
                       ))}
                     </ul>
                   )}
-
                   <p className="text-sm text-zinc-500">
                     {post.published && post.publishedAt
                       ? fill(text.publishedOn, { date: formatDate(post.publishedAt) })
                       : fill(text.editedOn, { date: formatDate(post.updatedAt) })}
+                    {' · '}
+                    {fill(text.readingTime, { count: post.readingMinutes })}
                     {post.published && <> · {formatCount(post.views, text.viewsOne, text.viewsMany)}</>}
                     {showAuthor && <> · {post.authorName ? fill(text.byAuthor, { name: post.authorName }) : text.unknownAuthor}</>}
                   </p>

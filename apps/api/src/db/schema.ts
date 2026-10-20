@@ -50,6 +50,7 @@ export const posts = pgTable('posts', {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
+  readingMinutes: integer('reading_minutes').notNull().default(1),
 });
 
 export const sessions = pgTable('sessions', {
