@@ -141,3 +141,13 @@ export async function getPostWithCategories(id: number) {
   const [post] = await attachCategories(rows);
   return post;
 }
+
+export async function getPreviewPost(id: number) {
+  const rows = await db
+    .select({ ...getTableColumns(posts), authorName: users.name })
+    .from(posts)
+    .leftJoin(users, eq(posts.authorId, users.id))
+    .where(eq(posts.id, id));
+  const [post] = await attachCategories(rows);
+  return post;
+}

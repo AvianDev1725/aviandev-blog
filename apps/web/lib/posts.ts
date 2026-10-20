@@ -65,3 +65,9 @@ export async function getCategories(): Promise<CategoryDetail[]> {
 
   return (await apiGet<CategoryDetail[]>('/categories')) ?? [];
 }
+
+export async function getPreviewPost(token: string): Promise<Post | null> {
+  const res = await fetch(`${API_URL}/preview/${encodeURIComponent(token)}`, { cache: 'no-store' });
+  if (!res.ok) return null;
+  return res.json();
+}

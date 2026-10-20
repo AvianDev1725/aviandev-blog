@@ -65,6 +65,9 @@ export const postEditorText = {
   uploading: 'Uploading…',
   uploadFailed: 'Upload failed. Try again.',
   uploadHelp: 'PNG, JPEG, GIF, WebP, ICO or SVG, up to 1 MB.',
+  preview: 'Preview',
+  previewing: 'Opening…',
+  previewUnsaved: 'Preview shows the last saved version. Save first to include your latest changes.',
 };
 
 export type PostEditorText = typeof postEditorText;

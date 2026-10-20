@@ -55,6 +55,7 @@ export default function PostEditor({ text, richText, categories, post, blogUrl }
     shareImage: post?.shareImage ?? '',
     noindex: post?.noindex ?? false,
   });
+  const [previewing, setPreviewing] = useState(false);
 
   const [dirty, setDirty] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -118,6 +119,23 @@ export default function PostEditor({ text, richText, categories, post, blogUrl }
       return;
     }
     router.refresh();
+  }
+
+  async function openPreview() {
+    if (!post) return;
+    const tab = window.open('', '_blank');
+    setPreviewing(true);
+    const result = await postJson<{ token: string }>(`/admin/posts/${post.id}/preview`, {});
+    setPreviewing(false);
+
+    if (!result.ok) {
+      tab?.close();
+      return setError(result.error || text.errorFallback);
+    }
+    if (tab) {
+      tab.opener = null;
+      tab.location.href = `${blogUrl}/preview/${result.data.token}`;
+    }
   }
 
   async function remove() {
@@ -197,6 +215,17 @@ export default function PostEditor({ text, richText, categories, post, blogUrl }
                 {published ? text.unpublish : text.publish}
               </button>
             </div>
+            {!isNew && (
+              <button
+                type="button"
+                onClick={openPreview}
+                disabled={previewing}
+                className="w-full rounded-lg px-4 py-2 text-sm font-medium ring-1 ring-zinc-300 hover:bg-zinc-100 disabled:opacity-60"
+              >
+                {previewing ? text.previewing : text.preview}
+              </button>
+            )}
+            {!isNew && dirty && <p className="text-xs text-zinc-500">{text.previewUnsaved}</p>}
             <FormError message={error} />
             {status && (
               <p role="status" className="text-sm text-green-700">

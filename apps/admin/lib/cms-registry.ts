@@ -8,7 +8,7 @@ import { contentText, richTextText } from '../app/(dashboard)/content/text';
 import { emailKeys, emailText } from '../../api/src/content/email-text';
 import { categoriesText } from '../app/(dashboard)/categories/text';
 import { postEditorText, postsText } from '../app/(dashboard)/posts/text';
-import { categoryText, homeText, postText, seoText, siteText } from '../../web/app/text';
+import { categoryText, homeText, postText, seoText, siteText, previewText, } from '../../web/app/text';
 import { adminSeoText } from '../app/seo-text';
 
 type Value = string | number | boolean;
@@ -156,5 +156,11 @@ export const cmsRegistry: CmsEntry[] = [
     description: 'How the admin appears in browser tabs. The admin is always hidden from search engines.',
     fallback: adminSeoText,
     fieldTypes: { favicon: 'image' },
+  },
+  {
+    key: 'web-preview',
+    name: 'Blog: draft preview',
+    description: 'The banner and messages on private post previews.',
+    fallback: previewText,
   },
 ];

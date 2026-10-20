@@ -50,3 +50,11 @@ export const seoText = {
   locale: 'en_IN',
   allowIndexing: true,
 };
+
+export const previewText = {
+  banner: 'Preview: this is your last saved version. Only people with this link can see it, and the link expires in 30 minutes.',
+  draft: 'Draft',
+  published: 'Published',
+  expiredTitle: 'This preview link has expired',
+  expiredBody: 'Open a new preview from the post editor.',
+};
