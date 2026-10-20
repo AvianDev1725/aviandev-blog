@@ -2,10 +2,10 @@ export type ApiResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string; fields: Record<string, string> };
 
-export async function postApi<T = unknown>(path: string, body?: unknown): Promise<ApiResult<T>> {
+async function callApi<T>(method: string, path: string, body?: unknown): Promise<ApiResult<T>> {
   try {
     const res = await fetch(`/api${path}`, {
-      method: 'POST',
+      method,
       headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
@@ -20,6 +20,30 @@ export async function postApi<T = unknown>(path: string, body?: unknown): Promis
   }
 }
 
+export const postApi = <T = unknown>(path: string, body?: unknown) => callApi<T>('POST', path, body);
+export const patchApi = <T = unknown>(path: string, body: unknown) => callApi<T>('PATCH', path, body);
+export const deleteApi = (path: string) => callApi<null>('DELETE', path);
+
 export function safeNext(path: string | null) {
   return path && path.startsWith('/') && !path.startsWith('//') ? path : '/';
+}
+
+export type SessionUser = {
+  id: number;
+  name: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  role: 'reader' | 'admin' | 'super_admin';
+  emailVerifiedAt: string | null;
+};
+
+let sessionRequest: Promise<SessionUser | null> | null = null;
+
+export function getSession() {
+  sessionRequest ??= fetch('/api/auth/session', { cache: 'no-store' })
+    .then((res) => (res.ok ? res.json() : null))
+    .then((data) => (data?.user ?? null) as SessionUser | null)
+    .catch(() => null);
+  return sessionRequest;
 }

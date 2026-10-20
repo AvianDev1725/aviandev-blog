@@ -8,7 +8,7 @@ import { contentText, richTextText } from '../app/(dashboard)/content/text';
 import { emailKeys, emailText } from '../../api/src/content/email-text';
 import { categoriesText } from '../app/(dashboard)/categories/text';
 import { postEditorText, postsText } from '../app/(dashboard)/posts/text';
-import { categoryText, homeText, postText, seoText, siteText, previewText, accountText } from '../../web/app/text';
+import { categoryText, homeText, postText, seoText, siteText, previewText, accountText, commentText } from '../../web/app/text';
 import { adminSeoText } from '../app/seo-text';
 
 type Value = string | number | boolean;
@@ -180,7 +180,7 @@ export const cmsRegistry: CmsEntry[] = [
     description: 'Sent when someone signs up with an email that already has an account. Placeholders: {name}, {loginUrl}, {resetUrl}.',
     fallback: emailText.accountExists,
   },
-    {
+  {
     key: emailKeys.commentWaiting,
     name: 'Email: guest comment waiting',
     description: "Sent to a post's author when a guest comment needs approval. Placeholders: {postTitle}, {comment}, {url}.",
@@ -191,5 +191,11 @@ export const cmsRegistry: CmsEntry[] = [
     name: 'Blog: accounts',
     description: 'Sign up, log in, password reset, email confirmation and the account menu. Placeholder: {email}.',
     fallback: accountText,
+  },
+  {
+    key: 'web-comments',
+    name: 'Blog: comments',
+    description: 'The comment section on posts, including the 12 guest bird names. Placeholders: {count}, {name}.',
+    fallback: commentText,
   },
 ];

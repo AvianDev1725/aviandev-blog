@@ -1,16 +1,16 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { isSafeLink } from '@aviandev/core/text';
+import Comments from '@/components/comments/comments';
+import PostView from '@/components/post-view';
+import ViewCounter from '@/components/view-counter';
+import { getComments } from '@/lib/comments';
 import { getContentByCMS } from '@/lib/content';
 import { getPost, getPosts } from '@/lib/posts';
 import { absoluteUrl } from '@/lib/site';
-import { postText, siteText } from '../../text';
-import { isSafeLink } from '@aviandev/core/text';
-import PostView from '@/components/post-view';
-import ViewCounter from '@/components/view-counter';
+import { commentText, postText, siteText } from '../../text';
 
 type Props = { params: Promise<{ slug: string }> };
-
-const ONE_DAY = 24 * 60 * 60 * 1000;
 
 export async function generateStaticParams() {
   const posts = await getPosts();
@@ -47,7 +47,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;
-  const [post, text] = await Promise.all([getPost(slug), getContentByCMS('web-post', postText)]);
+  const [post, text, comments, commentLabels] = await Promise.all([
+    getPost(slug),
+    getContentByCMS('web-post', postText),
+    getComments(slug),
+    getContentByCMS('web-comments', commentText),
+  ]);
   if (!post) notFound();
 
   const postUrl = absoluteUrl(`/posts/${post.slug}`);
@@ -67,18 +72,22 @@ export default async function PostPage({ params }: Props) {
     dateModified: post.updatedAt,
     author: post.authorName ? { '@type': 'Person', name: post.authorName } : undefined,
     keywords: post.categories.map((category) => category.name).join(', ') || undefined,
+    commentCount: comments.count,
   };
 
   return (
-    <PostView
-      post={post}
-      text={text}
-      meta={<ViewCounter slug={post.slug} one={text.viewsOne} many={text.viewsMany} />}
-    >
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
-      />
-    </PostView>
+    <>
+      <PostView
+        post={post}
+        text={text}
+        meta={<ViewCounter slug={post.slug} one={text.viewsOne} many={text.viewsMany} />}
+      >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+        />
+      </PostView>
+      <Comments slug={post.slug} initial={comments} text={commentLabels} />
+    </>
   );
 }

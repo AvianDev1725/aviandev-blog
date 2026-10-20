@@ -4,16 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import Avatar from '@/components/avatar';
-import { postApi } from '@/lib/client';
+import { getSession, postApi, type SessionUser } from '@/lib/client';
 import type { AccountText } from '@/app/text';
 
-type Me = {
-  name: string;
-  firstName: string | null;
-  lastName: string | null;
-  email: string;
-  emailVerifiedAt: string | null;
-};
+type Me = SessionUser;
 
 const AUTH_PAGES = ['/login', '/signup', '/forgot-password', '/reset-password', '/verify-email'];
 
@@ -27,10 +21,7 @@ export default function AccountMenu({ text }: { text: AccountText }) {
   const panel = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch('/api/auth/session', { cache: 'no-store' })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => setMe(data?.user ?? null))
-      .catch(() => setMe(null));
+    getSession().then(setMe);
   }, []);
 
   useEffect(() => {
@@ -106,7 +97,7 @@ export default function AccountMenu({ text }: { text: AccountText }) {
         className="flex h-11 items-center gap-2 rounded-full pl-1 pr-1 active:bg-zinc-100 sm:pr-3 sm:hover:bg-zinc-100"
       >
         <span className="relative">
-          <Avatar size="sm" {...me} />
+          <Avatar size="sm" name={me.name} firstName={me.firstName} lastName={me.lastName} />
           {!me.emailVerifiedAt && (
             <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-amber-500 ring-2 ring-white" aria-hidden />
           )}
@@ -126,7 +117,7 @@ export default function AccountMenu({ text }: { text: AccountText }) {
             <div className="mx-auto h-1.5 w-10 rounded-full bg-zinc-300 sm:hidden" aria-hidden />
 
             <div className="flex items-center gap-3">
-              <Avatar {...me} />
+              <Avatar name={me.name} firstName={me.firstName} lastName={me.lastName} />
               <div className="min-w-0">
                 <p className="truncate font-medium text-zinc-900">{me.name}</p>
                 <p className="truncate text-sm text-zinc-500">{me.email}</p>
