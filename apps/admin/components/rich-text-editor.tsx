@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { EditorContent, useEditor, useEditorState } from '@tiptap/react';
 import type { Editor, JSONContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -10,6 +10,7 @@ import {
   FileCode,
   Heading2,
   Heading3,
+  ImageIcon,
   Italic,
   Link as LinkIcon,
   List,
@@ -19,7 +20,10 @@ import {
   Unlink,
   type LucideIcon,
 } from 'lucide-react';
+import { uploadFile } from '@/lib/client';
+import { prepareImage, type PreparedImage } from '@/lib/prepare-image';
 import { insertHtml, pasteHtmlAsContent } from './html-paste';
+import { PostImage } from './post-image-extension';
 import RichTextPreview from './rich-text-preview';
 
 const codeLanguages = [
@@ -56,6 +60,11 @@ export type RichTextLabels = {
   write: string;
   preview: string;
   previewEmpty: string;
+  image: string;
+  imageAlt: string;
+  imageAltHint: string;
+  imageUploading: string;
+  imageError: string;
 };
 
 type Props = {
@@ -67,7 +76,10 @@ type Props = {
   labels: RichTextLabels;
   output?: 'html' | 'json';
   minHeightClass?: string;
+  images?: boolean;
 };
+
+type PendingImage = PreparedImage & { previewUrl: string };
 
 function toggleCode(editor: Editor) {
   const { state } = editor;
@@ -106,10 +118,16 @@ export default function RichTextEditor({
   labels,
   output = 'html',
   minHeightClass = 'min-h-40',
+  images = false,
 }: Props) {
   const [mode, setMode] = useState<'write' | 'preview'>('write');
   const [htmlOpen, setHtmlOpen] = useState(false);
   const [htmlDraft, setHtmlDraft] = useState('');
+  const [pendingImage, setPendingImage] = useState<PendingImage | null>(null);
+  const [imageAlt, setImageAlt] = useState('');
+  const [imageBusy, setImageBusy] = useState(false);
+  const [imageError, setImageError] = useState('');
+  const fileInput = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -118,6 +136,7 @@ export default function RichTextEditor({
         horizontalRule: false,
         link: { openOnClick: false },
       }),
+      ...(images ? [PostImage] : []),
     ],
     content: value,
     immediatelyRender: false,
@@ -140,18 +159,18 @@ export default function RichTextEditor({
     selector: ({ editor }) =>
       editor
         ? {
-            bold: editor.isActive('bold'),
-            italic: editor.isActive('italic'),
-            underline: editor.isActive('underline'),
-            h2: editor.isActive('heading', { level: 2 }),
-            h3: editor.isActive('heading', { level: 3 }),
-            bulletList: editor.isActive('bulletList'),
-            orderedList: editor.isActive('orderedList'),
-            blockquote: editor.isActive('blockquote'),
-            codeBlock: editor.isActive('codeBlock'),
-            link: editor.isActive('link'),
-            codeLanguage: (editor.getAttributes('codeBlock').language as string | null) ?? '',
-          }
+          bold: editor.isActive('bold'),
+          italic: editor.isActive('italic'),
+          underline: editor.isActive('underline'),
+          h2: editor.isActive('heading', { level: 2 }),
+          h3: editor.isActive('heading', { level: 3 }),
+          bulletList: editor.isActive('bulletList'),
+          orderedList: editor.isActive('orderedList'),
+          blockquote: editor.isActive('blockquote'),
+          codeBlock: editor.isActive('codeBlock'),
+          link: editor.isActive('link'),
+          codeLanguage: (editor.getAttributes('codeBlock').language as string | null) ?? '',
+        }
         : null,
   });
 
@@ -178,21 +197,68 @@ export default function RichTextEditor({
     editor.commands.focus();
   }
 
+  function closeImagePanel() {
+    if (pendingImage) URL.revokeObjectURL(pendingImage.previewUrl);
+    setPendingImage(null);
+    setImageAlt('');
+    setImageError('');
+    setImageBusy(false);
+  }
+
+  async function chooseImage(file: File | undefined) {
+    if (!file) return;
+    closeImagePanel();
+    try {
+      const prepared = await prepareImage(file);
+      setPendingImage({ ...prepared, previewUrl: URL.createObjectURL(prepared.file) });
+    } catch {
+      setImageError(labels.imageError);
+    }
+  }
+
+  async function submitImage() {
+    if (!editor || !pendingImage || !imageAlt.trim()) return;
+    setImageBusy(true);
+    setImageError('');
+
+    const result = await uploadFile(pendingImage.file);
+    if (!result.ok) {
+      setImageBusy(false);
+      return setImageError(result.error || labels.imageError);
+    }
+
+    editor
+      .chain()
+      .focus()
+      .insertContent({
+        type: 'image',
+        attrs: {
+          src: result.data.url,
+          alt: imageAlt.trim(),
+          width: pendingImage.width,
+          height: pendingImage.height,
+        },
+      })
+      .run();
+    closeImagePanel();
+  }
+
   const buttons: { label: string; icon: LucideIcon; pressed?: boolean; run: () => void }[] = editor
     ? [
-        { label: labels.bold, icon: Bold, pressed: active?.bold, run: () => editor.chain().focus().toggleBold().run() },
-        { label: labels.italic, icon: Italic, pressed: active?.italic, run: () => editor.chain().focus().toggleItalic().run() },
-        { label: labels.underline, icon: Underline, pressed: active?.underline, run: () => editor.chain().focus().toggleUnderline().run() },
-        { label: labels.heading2, icon: Heading2, pressed: active?.h2, run: () => editor.chain().focus().toggleHeading({ level: 2 }).run() },
-        { label: labels.heading3, icon: Heading3, pressed: active?.h3, run: () => editor.chain().focus().toggleHeading({ level: 3 }).run() },
-        { label: labels.bulletList, icon: List, pressed: active?.bulletList, run: () => editor.chain().focus().toggleBulletList().run() },
-        { label: labels.numberedList, icon: ListOrdered, pressed: active?.orderedList, run: () => editor.chain().focus().toggleOrderedList().run() },
-        { label: labels.quote, icon: Quote, pressed: active?.blockquote, run: () => editor.chain().focus().toggleBlockquote().run() },
-        { label: labels.codeBlock, icon: Code, pressed: active?.codeBlock, run: () => toggleCode(editor) },
-        { label: labels.link, icon: LinkIcon, pressed: active?.link, run: editLink },
-        { label: labels.unlink, icon: Unlink, run: () => editor.chain().focus().unsetLink().run() },
-        { label: labels.insertHtml, icon: FileCode, pressed: htmlOpen, run: () => (htmlOpen ? closeHtmlPanel() : setHtmlOpen(true)) },
-      ]
+      { label: labels.bold, icon: Bold, pressed: active?.bold, run: () => editor.chain().focus().toggleBold().run() },
+      { label: labels.italic, icon: Italic, pressed: active?.italic, run: () => editor.chain().focus().toggleItalic().run() },
+      { label: labels.underline, icon: Underline, pressed: active?.underline, run: () => editor.chain().focus().toggleUnderline().run() },
+      { label: labels.heading2, icon: Heading2, pressed: active?.h2, run: () => editor.chain().focus().toggleHeading({ level: 2 }).run() },
+      { label: labels.heading3, icon: Heading3, pressed: active?.h3, run: () => editor.chain().focus().toggleHeading({ level: 3 }).run() },
+      { label: labels.bulletList, icon: List, pressed: active?.bulletList, run: () => editor.chain().focus().toggleBulletList().run() },
+      { label: labels.numberedList, icon: ListOrdered, pressed: active?.orderedList, run: () => editor.chain().focus().toggleOrderedList().run() },
+      { label: labels.quote, icon: Quote, pressed: active?.blockquote, run: () => editor.chain().focus().toggleBlockquote().run() },
+      { label: labels.codeBlock, icon: Code, pressed: active?.codeBlock, run: () => toggleCode(editor) },
+      { label: labels.link, icon: LinkIcon, pressed: active?.link, run: editLink },
+      { label: labels.unlink, icon: Unlink, run: () => editor.chain().focus().unsetLink().run() },
+      ...(images ? [{ label: labels.image, icon: ImageIcon, run: () => fileInput.current?.click() }] : []),
+      { label: labels.insertHtml, icon: FileCode, pressed: htmlOpen, run: () => (htmlOpen ? closeHtmlPanel() : setHtmlOpen(true)) },
+    ]
     : [];
 
   const tabClass = (selected: boolean) =>
@@ -241,6 +307,67 @@ export default function RichTextEditor({
               ))}
             </select>
           )}
+        </div>
+      )}
+
+      {images && (
+        <input
+          ref={fileInput}
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+          className="hidden"
+          onChange={(e) => {
+            chooseImage(e.target.files?.[0]);
+            e.target.value = '';
+          }}
+        />
+      )}
+
+      {mode === 'write' && (pendingImage || imageError) && (
+        <div className="space-y-3 border-b border-zinc-200 bg-zinc-50 p-3">
+          {pendingImage && (
+            <>
+              <img src={pendingImage.previewUrl} alt="" className="max-h-48 rounded-md ring-1 ring-zinc-200" />
+              <div>
+                <label htmlFor={`${id}-alt`} className="block text-xs font-medium text-zinc-700">
+                  {labels.imageAlt}
+                </label>
+                <input
+                  id={`${id}-alt`}
+                  value={imageAlt}
+                  onChange={(e) => setImageAlt(e.target.value)}
+                  aria-describedby={`${id}-alt-hint`}
+                  autoFocus
+                  required
+                  maxLength={200}
+                  className="mt-1 w-full rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-sm"
+                />
+                <p id={`${id}-alt-hint`} className="mt-1 text-xs text-zinc-500">
+                  {labels.imageAltHint}
+                </p>
+              </div>
+            </>
+          )}
+          {imageError && (
+            <p role="alert" className="text-xs text-red-700">
+              {imageError}
+            </p>
+          )}
+          <div className="flex gap-2">
+            {pendingImage && (
+              <button
+                type="button"
+                onClick={submitImage}
+                disabled={!imageAlt.trim() || imageBusy}
+                className="rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+              >
+                {imageBusy ? labels.imageUploading : labels.insert}
+              </button>
+            )}
+            <button type="button" onClick={closeImagePanel} className="rounded-md px-3 py-1.5 text-xs ring-1 ring-zinc-300">
+              {labels.cancel}
+            </button>
+          </div>
         </div>
       )}
 

@@ -181,6 +181,7 @@ export default function PostEditor({ text, richText, categories, post, blogUrl }
               {text.contentLabel}
             </p>
             <RichTextEditor
+              images
               id="post-content"
               labelId="post-content-label"
               value={content}

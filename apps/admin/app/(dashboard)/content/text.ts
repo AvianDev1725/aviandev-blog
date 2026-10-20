@@ -54,6 +54,11 @@ export const richTextText = {
   write: 'Write',
   preview: 'Preview',
   previewEmpty: 'Nothing to preview yet.',
+  image: 'Insert image',
+  imageAlt: 'Alt text',
+  imageAltHint: "Describe the image for people who can't see it. Required, and helps search engines too.",
+  imageUploading: 'Uploading…',
+  imageError: "That image couldn't be added. Try a PNG, JPEG, WebP or GIF under 1 MB.",
 };
 
 export type ContentText = typeof contentText;

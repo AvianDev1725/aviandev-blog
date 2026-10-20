@@ -1,6 +1,7 @@
 import { Fragment, type ReactNode } from 'react';
 import { isSafeLink } from '@aviandev/core/text';
 import CodeBlock from './code-block';
+import PostImage from './post-image';
 
 type Mark = { type: string; attrs?: Record<string, unknown> };
 export type DocNode = {
@@ -73,7 +74,14 @@ function renderNode(node: DocNode): ReactNode {
     case 'codeBlock': {
       const language = typeof node.attrs?.language === 'string' ? node.attrs.language : '';
       return <CodeBlock code={textOf(node)} language={language} />;
+    } case 'codeBlock': {
+      const language = typeof node.attrs?.language === 'string' ? node.attrs.language : '';
+      return <CodeBlock code={textOf(node)} language={language} />;
     }
+    case 'image':
+      return <PostImage {...node.attrs} />;
+    case 'hardBreak':
+      return <br />;
     case 'hardBreak':
       return <br />;
     case 'horizontalRule':
