@@ -265,7 +265,7 @@ export default function RichTextEditor({
     `rounded-md px-3 py-1 text-xs font-medium ${selected ? 'bg-white text-zinc-900 shadow-sm ring-1 ring-zinc-200' : 'text-zinc-600 hover:text-zinc-900'}`;
 
   return (
-    <div className="overflow-hidden rounded-lg border border-zinc-300 focus-within:border-zinc-900 focus-within:ring-1 focus-within:ring-zinc-900">
+    <div className="overflow-clip rounded-lg border border-zinc-300 focus-within:border-zinc-900 focus-within:ring-1 focus-within:ring-zinc-900">
       <div className="flex gap-1 border-b border-zinc-200 bg-zinc-100 p-1">
         <button type="button" aria-pressed={mode === 'write'} onClick={() => setMode('write')} className={tabClass(mode === 'write')}>
           {labels.write}
@@ -276,7 +276,11 @@ export default function RichTextEditor({
       </div>
 
       {mode === 'write' && (
-        <div role="toolbar" aria-label={labels.toolbar} className="flex flex-wrap gap-1 border-b border-zinc-200 bg-zinc-50 p-1">
+        <div
+          role="toolbar"
+          aria-label={labels.toolbar}
+          className="sticky top-14 z-10 flex flex-nowrap gap-1 overflow-x-auto border-b border-zinc-200 bg-zinc-50 p-1 sm:flex-wrap md:top-0"
+        >
           {buttons.map(({ label, icon: Icon, pressed, run }) => (
             <button
               key={label}
@@ -285,7 +289,7 @@ export default function RichTextEditor({
               aria-label={label}
               aria-pressed={pressed === undefined ? undefined : pressed}
               title={label}
-              className={`rounded-md p-1.5 ${pressed ? 'bg-zinc-900 text-white' : 'text-zinc-700 hover:bg-zinc-200'}`}
+              className={`shrink-0 rounded-md p-2.5 sm:p-1.5 ${pressed ? 'bg-zinc-900 text-white' : 'text-zinc-700 hover:bg-zinc-200'}`}
             >
               <Icon size={16} aria-hidden />
             </button>

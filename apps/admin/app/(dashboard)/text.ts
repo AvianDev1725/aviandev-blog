@@ -13,6 +13,7 @@ export const shellText = {
   roleSuperAdmin: 'Super admin',
   categories: 'Categories',
   posts: 'Posts',
+  more: 'More',
 };
 
 export const dashboardText = {

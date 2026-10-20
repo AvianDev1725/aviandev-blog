@@ -147,27 +147,32 @@ export default function PostEditor({ text, richText, categories, post, blogUrl }
     router.refresh();
   }
 
+  const saveLabel = saving ? text.saving : published ? text.update : text.saveDraft;
+  const publishLabel = published ? text.unpublish : text.publish;
+
   return (
-    <div className="max-w-6xl space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="space-y-1">
-          <Link href="/posts" className="text-sm text-zinc-500 hover:text-zinc-900">
-            ← {text.backToPosts}
-          </Link>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-semibold text-zinc-900">{isNew ? text.newTitle : text.editTitle}</h1>
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${published ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
-                }`}
-            >
-              {published ? text.statusPublished : text.statusDraft}
-            </span>
-          </div>
+    <div className="max-w-6xl space-y-4 sm:space-y-6">
+      <div className="space-y-1">
+        <Link
+          href="/posts"
+          className="-ml-1 inline-flex h-10 items-center px-1 text-sm text-zinc-500 hover:text-zinc-900 md:h-auto"
+        >
+          ← {text.backToPosts}
+        </Link>
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl font-semibold text-zinc-900 sm:text-2xl">{isNew ? text.newTitle : text.editTitle}</h1>
+          <span
+            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+              published ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+            }`}
+          >
+            {published ? text.statusPublished : text.statusDraft}
+          </span>
         </div>
       </div>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[1fr_20rem]">
-        <div className="space-y-4 rounded-xl bg-white p-6 ring-1 ring-zinc-200">
+      <div className="grid items-start gap-4 sm:gap-6 lg:grid-cols-[1fr_20rem]">
+        <div className="space-y-4 rounded-xl bg-white p-4 ring-1 ring-zinc-200 sm:p-6">
           <Field
             id="post-title"
             label={text.titleLabel}
@@ -198,14 +203,14 @@ export default function PostEditor({ text, richText, categories, post, blogUrl }
 
         <aside className="space-y-4 lg:sticky lg:top-6">
           <div className="space-y-3 rounded-xl bg-white p-4 ring-1 ring-zinc-200">
-            <div className="flex flex-wrap gap-2">
+            <div className="hidden flex-wrap gap-2 lg:flex">
               <button
                 type="button"
                 onClick={() => save(published)}
                 disabled={saving}
                 className="rounded-lg px-4 py-2 text-sm font-medium ring-1 ring-zinc-300 hover:bg-zinc-100 disabled:opacity-60"
               >
-                {saving ? text.saving : published ? text.update : text.saveDraft}
+                {saveLabel}
               </button>
               <button
                 type="button"
@@ -213,7 +218,7 @@ export default function PostEditor({ text, richText, categories, post, blogUrl }
                 disabled={saving}
                 className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-60"
               >
-                {published ? text.unpublish : text.publish}
+                {publishLabel}
               </button>
             </div>
             {!isNew && (
@@ -221,18 +226,20 @@ export default function PostEditor({ text, richText, categories, post, blogUrl }
                 type="button"
                 onClick={openPreview}
                 disabled={previewing}
-                className="w-full rounded-lg px-4 py-2 text-sm font-medium ring-1 ring-zinc-300 hover:bg-zinc-100 disabled:opacity-60"
+                className="h-11 w-full rounded-lg px-4 text-sm font-medium ring-1 ring-zinc-300 hover:bg-zinc-100 disabled:opacity-60 lg:h-auto lg:py-2"
               >
                 {previewing ? text.previewing : text.preview}
               </button>
             )}
             {!isNew && dirty && <p className="text-xs text-zinc-500">{text.previewUnsaved}</p>}
-            <FormError message={error} />
-            {status && (
-              <p role="status" className="text-sm text-green-700">
-                {status}
-              </p>
-            )}
+            <div className="hidden space-y-3 lg:block">
+              <FormError message={error} />
+              {status && (
+                <p role="status" className="text-sm text-green-700">
+                  {status}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="space-y-4 rounded-xl bg-white p-4 ring-1 ring-zinc-200">
@@ -292,8 +299,9 @@ export default function PostEditor({ text, richText, categories, post, blogUrl }
                     return (
                       <label
                         key={category.id}
-                        className={`flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-sm ring-1 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-zinc-900 ${checked ? 'bg-zinc-900 text-white ring-zinc-900' : 'bg-white text-zinc-700 ring-zinc-300'
-                          }`}
+                        className={`flex min-h-10 cursor-pointer items-center gap-1.5 rounded-full px-4 text-sm ring-1 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-zinc-900 lg:min-h-0 lg:px-3 lg:py-1 ${
+                          checked ? 'bg-zinc-900 text-white ring-zinc-900' : 'bg-white text-zinc-700 ring-zinc-300'
+                        }`}
                       >
                         <input
                           type="checkbox"
@@ -328,12 +336,44 @@ export default function PostEditor({ text, richText, categories, post, blogUrl }
             <button
               type="button"
               onClick={remove}
-              className="w-full rounded-lg px-4 py-2 text-sm text-red-700 ring-1 ring-red-200 hover:bg-red-50"
+              className="h-11 w-full rounded-lg px-4 text-sm text-red-700 ring-1 ring-red-200 hover:bg-red-50 lg:h-auto lg:py-2"
             >
               {text.delete}
             </button>
           )}
         </aside>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 space-y-2 border-t border-zinc-200 bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden">
+        {error ? (
+          <p role="alert" className="text-sm text-red-700">
+            {error}
+          </p>
+        ) : (
+          status && (
+            <p role="status" className="text-sm text-green-700">
+              {status}
+            </p>
+          )
+        )}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => save(published)}
+            disabled={saving}
+            className="h-11 flex-1 rounded-xl font-medium ring-1 ring-zinc-300 active:bg-zinc-100 disabled:opacity-60"
+          >
+            {saveLabel}
+          </button>
+          <button
+            type="button"
+            onClick={() => save(!published)}
+            disabled={saving}
+            className="h-11 flex-1 rounded-xl bg-zinc-900 font-medium text-white active:bg-zinc-700 disabled:opacity-60"
+          >
+            {publishLabel}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -3,30 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, LogOut, PanelLeftClose, PanelLeftOpen, Users, Blocks, FileText, Tags, Newspaper, type LucideIcon } from 'lucide-react';
+import { LogOut, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { isActivePath, navItems, type Role, type SidebarLabels } from './nav-items';
 
-type Role = 'reader' | 'admin' | 'super_admin';
-
-type NavItem = {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  roles?: Role[];
-};
-
-export type SidebarLabels = {
-  appName: string;
-  dashboard: string;
-  team: string;
-  categories: string;
-  logout: string;
-  collapse: string;
-  expand: string;
-  navigation: string;
-  models: string;
-  content: string;
-  posts: string;
-};
+export type { SidebarLabels } from './nav-items';
 
 type SidebarProps = {
   user: { name: string; role: Role; roleLabel: string };
@@ -38,20 +18,7 @@ export default function Sidebar({ user, labels, initialCollapsed }: SidebarProps
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(initialCollapsed);
-
-  const items: NavItem[] = [
-    { href: '/', label: labels.dashboard, icon: LayoutDashboard },
-    { href: '/posts', label: labels.posts, icon: Newspaper },
-    { href: '/content', label: labels.content, icon: FileText },
-    { href: '/categories', label: labels.categories, icon: Tags },
-    { href: '/models', label: labels.models, icon: Blocks, roles: ['super_admin'] },
-    { href: '/team', label: labels.team, icon: Users, roles: ['super_admin'] },
-  ];
-  const visibleItems = items.filter((item) => !item.roles || item.roles.includes(user.role));
-
-  function isActive(href: string) {
-    return href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
-  }
+  const items = navItems(labels, user.role);
 
   function toggle() {
     const next = !collapsed;
@@ -67,12 +34,14 @@ export default function Sidebar({ user, labels, initialCollapsed }: SidebarProps
 
   return (
     <aside
-      className={`sticky top-0 flex h-screen shrink-0 flex-col border-r border-zinc-200 bg-white transition-[width] duration-200 motion-reduce:transition-none ${collapsed ? 'w-16' : 'w-60'
-        }`}
+      className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-zinc-200 bg-white transition-[width] duration-200 motion-reduce:transition-none md:flex ${
+        collapsed ? 'w-16' : 'w-60'
+      }`}
     >
       <div
-        className={`flex h-14 items-center gap-2 border-b border-zinc-200 px-3 ${collapsed ? 'justify-center' : 'justify-between'
-          }`}
+        className={`flex h-14 items-center gap-2 border-b border-zinc-200 px-3 ${
+          collapsed ? 'justify-center' : 'justify-between'
+        }`}
       >
         {!collapsed && <span className="truncate font-semibold text-zinc-900">{labels.appName}</span>}
         <button
@@ -86,16 +55,17 @@ export default function Sidebar({ user, labels, initialCollapsed }: SidebarProps
       </div>
 
       <nav aria-label={labels.navigation} className="flex-1 space-y-1 p-2">
-        {visibleItems.map(({ href, label, icon: Icon }) => {
-          const active = isActive(href);
+        {items.map(({ href, label, icon: Icon }) => {
+          const active = isActivePath(pathname, href);
           return (
             <Link
               key={href}
               href={href}
               aria-current={active ? 'page' : undefined}
               title={collapsed ? label : undefined}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium ${active ? 'bg-zinc-900 text-white' : 'text-zinc-700 hover:bg-zinc-100'
-                }`}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium ${
+                active ? 'bg-zinc-900 text-white' : 'text-zinc-700 hover:bg-zinc-100'
+              }`}
             >
               <Icon size={18} aria-hidden className="shrink-0" />
               <span className={collapsed ? 'sr-only' : 'truncate'}>{label}</span>
