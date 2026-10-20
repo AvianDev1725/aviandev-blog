@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { eq } from 'drizzle-orm';
 import app from '../src/app.js';
+import { db } from '../src/db/index.js';
+import { media } from '../src/db/schema.js';
 import { cookieFor, resetDb } from './helpers.js';
 
 const PNG = Buffer.from(
@@ -35,6 +38,14 @@ describe('media uploads', () => {
     expect(Buffer.from(await file.arrayBuffer()).equals(PNG)).toBe(true);
   });
 
+  it('stores new uploads in file storage, not the database', async () => {
+    const { id } = await (await upload(admin, PNG, 'logo.png', 'image/png')).json();
+
+    const [row] = await db.select({ data: media.data }).from(media).where(eq(media.id, id));
+    expect(row.data).toBeNull();
+    expect((await app.request(`/media/${id}`)).status).toBe(200);
+  });
+
   it('gives the same file the same address', async () => {
     const first = await (await upload(admin, PNG, 'a.png', 'image/png')).json();
     const second = await (await upload(admin, PNG, 'b.png', 'image/png')).json();
@@ -46,9 +57,18 @@ describe('media uploads', () => {
     expect(res.status).toBe(400);
   });
 
-  it('rejects files over 1 MB', async () => {
-    const big = Buffer.concat([PNG, Buffer.alloc(1_100_000)]);
+  it('accepts files between 1 MB and 5 MB', async () => {
+    const medium = Buffer.concat([PNG, Buffer.alloc(1_100_000)]);
+    expect((await upload(admin, medium, 'medium.png', 'image/png')).status).toBe(201);
+  });
+
+  it('rejects files over 5 MB', async () => {
+    const big = Buffer.concat([PNG, Buffer.alloc(5_300_000)]);
     expect((await upload(admin, big, 'big.png', 'image/png')).status).toBe(413);
+  });
+
+  it('returns 404 for a file that does not exist', async () => {
+    expect((await app.request('/media/0123456789abcdef0123456789abcdef.png')).status).toBe(404);
   });
 
   it('serves SVGs in a sandbox that blocks scripts', async () => {

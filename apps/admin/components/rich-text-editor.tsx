@@ -314,7 +314,7 @@ export default function RichTextEditor({
         <input
           ref={fileInput}
           type="file"
-          accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+          accept="image/png,image/jpeg,image/webp,image/gif"
           className="hidden"
           onChange={(e) => {
             chooseImage(e.target.files?.[0]);

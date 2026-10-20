@@ -1,0 +1,1 @@
+ALTER TABLE "media" ALTER COLUMN "data" DROP NOT NULL;

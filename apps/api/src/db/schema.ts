@@ -128,7 +128,7 @@ export const media = pgTable('media', {
   filename: text('filename').notNull(),
   mimeType: text('mime_type').notNull(),
   size: integer('size').notNull(),
-  data: text('data').notNull(),
+  data: text('data'),
   uploadedBy: integer('uploaded_by').references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });

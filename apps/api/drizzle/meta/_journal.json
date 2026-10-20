@@ -78,6 +78,13 @@
       "when": 1792467048752,
       "tag": "0010_closed_diamondback",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792473934582,
+      "tag": "0011_unique_vulcan",
+      "breakpoints": true
     }
   ]
 }
