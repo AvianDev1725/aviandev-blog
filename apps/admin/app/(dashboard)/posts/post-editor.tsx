@@ -9,6 +9,7 @@ import RichTextEditor, { type RichTextLabels } from '@/components/rich-text-edit
 import { deleteJson, patchJson, postJson } from '@/lib/client';
 import { fill, toSlug } from '@/lib/text';
 import type { PostEditorText } from './text';
+import SeoPanel, { type SeoValues } from './seo-panel';
 
 export type Category = { id: number; name: string; slug: string };
 
@@ -20,6 +21,10 @@ export type EditorPost = {
   content: JSONContent;
   published: boolean;
   categories: Category[];
+  seoTitle: string;
+  seoDescription: string;
+  shareImage: string;
+  noindex: boolean;
 };
 
 const EXCERPT_LIMIT = 300;
@@ -30,9 +35,10 @@ type Props = {
   richText: RichTextLabels;
   categories: Category[];
   post?: EditorPost;
+  blogUrl: string;
 };
 
-export default function PostEditor({ text, richText, categories, post }: Props) {
+export default function PostEditor({ text, richText, categories, post, blogUrl }: Props) {
   const router = useRouter();
   const isNew = !post;
 
@@ -43,6 +49,12 @@ export default function PostEditor({ text, richText, categories, post }: Props) 
   const [content, setContent] = useState<JSONContent>(post?.content ?? emptyDocument);
   const [categoryIds, setCategoryIds] = useState<number[]>(post?.categories.map((c) => c.id) ?? []);
   const [published, setPublished] = useState(post?.published ?? false);
+  const [seo, setSeo] = useState<SeoValues>({
+    seoTitle: post?.seoTitle ?? '',
+    seoDescription: post?.seoDescription ?? '',
+    shareImage: post?.shareImage ?? '',
+    noindex: post?.noindex ?? false,
+  });
 
   const [dirty, setDirty] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -84,7 +96,7 @@ export default function PostEditor({ text, richText, categories, post }: Props) 
     setStatus('');
     setSaving(true);
 
-    const body = { title, slug, excerpt, content, categoryIds, published: nextPublished };
+    const body = { title, slug, excerpt, content, categoryIds, published: nextPublished, ...seo };
     const result = isNew
       ? await postJson<EditorPost>('/posts', body)
       : await patchJson<EditorPost>(`/posts/${post.id}`, body);
@@ -127,9 +139,8 @@ export default function PostEditor({ text, richText, categories, post }: Props) 
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold text-zinc-900">{isNew ? text.newTitle : text.editTitle}</h1>
             <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                published ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
-              }`}
+              className={`rounded-full px-2 py-0.5 text-xs font-medium ${published ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+                }`}
             >
               {published ? text.statusPublished : text.statusDraft}
             </span>
@@ -251,9 +262,8 @@ export default function PostEditor({ text, richText, categories, post }: Props) 
                     return (
                       <label
                         key={category.id}
-                        className={`flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-sm ring-1 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-zinc-900 ${
-                          checked ? 'bg-zinc-900 text-white ring-zinc-900' : 'bg-white text-zinc-700 ring-zinc-300'
-                        }`}
+                        className={`flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-sm ring-1 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-zinc-900 ${checked ? 'bg-zinc-900 text-white ring-zinc-900' : 'bg-white text-zinc-700 ring-zinc-300'
+                          }`}
                       >
                         <input
                           type="checkbox"
@@ -270,7 +280,20 @@ export default function PostEditor({ text, richText, categories, post }: Props) 
               {fieldErrors.categoryIds && <p className="text-sm text-red-600">{fieldErrors.categoryIds}</p>}
             </fieldset>
           </div>
-
+          <SeoPanel
+            text={text}
+            values={seo}
+            errors={fieldErrors}
+            onChange={(changes) => {
+              setSeo((current) => ({ ...current, ...changes }));
+              edited();
+            }}
+            preview={{
+              title: seo.seoTitle || title || text.newTitle,
+              description: seo.seoDescription || excerpt,
+              url: `${blogUrl}/posts/${slug}`,
+            }}
+          />
           {!isNew && (
             <button
               type="button"

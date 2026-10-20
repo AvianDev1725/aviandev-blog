@@ -14,11 +14,15 @@ export type PostSummary = {
   publishedAt: string | null;
   updatedAt: string;
   categories: Category[];
+  noindex: boolean;
 };
 
 export type Post = PostSummary & {
   content: { type: 'doc'; content?: unknown[] };
   authorName: string | null;
+  seoTitle: string;
+  seoDescription: string;
+  shareImage: string;
 };
 
 async function apiGet<T>(path: string): Promise<T | null> {

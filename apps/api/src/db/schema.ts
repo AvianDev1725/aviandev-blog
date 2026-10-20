@@ -33,6 +33,10 @@ export const posts = pgTable('posts', {
   title: text('title').notNull(),
   slug: text('slug').notNull().unique(),
   excerpt: text('excerpt').notNull().default(''),
+  seoTitle: text('seo_title').notNull().default(''),
+  seoDescription: text('seo_description').notNull().default(''),
+  shareImage: text('share_image').notNull().default(''),
+  noindex: boolean('noindex').notNull().default(false),
   content: jsonb('content')
     .notNull()
     .default(sql`'{"type":"doc","content":[]}'::jsonb`),

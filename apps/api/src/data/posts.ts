@@ -44,6 +44,7 @@ const summaryColumns = {
   excerpt: posts.excerpt,
   publishedAt: posts.publishedAt,
   updatedAt: posts.updatedAt,
+  noindex: posts.noindex,
 };
 
 export async function getPublishedPosts(categorySlug?: string) {

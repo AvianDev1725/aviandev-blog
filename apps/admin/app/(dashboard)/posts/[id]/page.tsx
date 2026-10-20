@@ -25,6 +25,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
       richText={cms['admin-rich-text']}
       categories={categories}
       post={post}
+      blogUrl={process.env.BLOG_URL ?? 'http://localhost:3002'}
     />
   );
 }

@@ -14,6 +14,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: absoluteUrl('/'), lastModified: lastChanged },
     { url: absoluteUrl('/categories') },
     ...categories.map((category) => ({ url: absoluteUrl(`/category/${category.slug}`) })),
-    ...posts.map((post) => ({ url: absoluteUrl(`/posts/${post.slug}`), lastModified: post.updatedAt })),
+    ...posts
+      .filter((post) => !post.noindex)
+      .map((post) => ({ url: absoluteUrl(`/posts/${post.slug}`), lastModified: post.updatedAt })),
   ];
 }

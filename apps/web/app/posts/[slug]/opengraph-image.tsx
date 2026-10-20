@@ -2,6 +2,8 @@ import { ImageResponse } from 'next/og';
 import { getContentByCMS } from '@/lib/content';
 import { getPost, getPosts } from '@/lib/posts';
 import { siteText } from '../../text';
+import { isSafeLink } from '@aviandev/core/text';
+import { absoluteUrl } from '@/lib/site';
 
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
@@ -14,6 +16,18 @@ export async function generateStaticParams() {
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const [post, site] = await Promise.all([getPost(slug), getContentByCMS('web-site', siteText)]);
+  if (post && isSafeLink(post.shareImage)) {
+    const src = post.shareImage.startsWith('/') ? absoluteUrl(post.shareImage) : post.shareImage;
+    return new ImageResponse(
+      (
+        <div style={{ display: 'flex', width: '100%', height: '100%' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} alt="" width={1200} height={630} style={{ objectFit: 'cover' }} />
+        </div>
+      ),
+      size
+    );
+  }
 
   return new ImageResponse(
     (

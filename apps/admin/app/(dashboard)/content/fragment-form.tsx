@@ -9,7 +9,7 @@ import { deleteJson, putJson } from '@/lib/client';
 import { fill } from '@/lib/text';
 import type { ContentModel, FieldDefinition } from '@/lib/content-types';
 import type { ContentText } from './text';
-import ImageUpload from './image-upload';
+import ImageUpload from '@/components/image-upload';
 
 type Values = Record<string, unknown>;
 
@@ -313,7 +313,7 @@ function FieldInput({ field, value, error, text, onChange, richText }: FieldInpu
           className={inputClass}
         />
       )}
-      {field.type === 'image' && <ImageUpload inputId={`${id}-file`} text={text} onUploaded={onChange} />}
+      {field.type === 'image' && <ImageUpload inputId={`${id}-file`} labels={text} onUploaded={onChange} />}
       {field.type === 'image' && /^(https?:\/\/|\/(?!\/))/i.test(stringValue) && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={stringValue} alt={text.imagePreview} className="mt-2 max-h-40 rounded-lg ring-1 ring-zinc-200" />

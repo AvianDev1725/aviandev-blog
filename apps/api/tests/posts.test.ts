@@ -179,3 +179,28 @@ describe('public reading', () => {
     expect(post.authorName).toBe('Test User');
   });
 });
+
+describe('SEO fields', () => {
+  it('defaults to empty values', async () => {
+    const post = await (await create({ title: 'Plain', slug: 'plain' })).json();
+    expect(post).toMatchObject({ seoTitle: '', seoDescription: '', shareImage: '', noindex: false });
+  });
+
+  it('saves SEO fields', async () => {
+    const created = await (await create({ title: 'A', slug: 'a' })).json();
+    const res = await send('PATCH', `/posts/${created.id}`, admin, {
+      seoTitle: 'Better title',
+      seoDescription: 'A description for search results.',
+      shareImage: '/media/abc.png',
+      noindex: true,
+    });
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ seoTitle: 'Better title', shareImage: '/media/abc.png', noindex: true });
+  });
+
+  it('rejects unsafe share images and over-long titles', async () => {
+    expect((await create({ title: 'A', slug: 'a', shareImage: 'javascript:alert(1)' })).status).toBe(400);
+    expect((await create({ title: 'B', slug: 'b', seoTitle: 'x'.repeat(71) })).status).toBe(400);
+  });
+});

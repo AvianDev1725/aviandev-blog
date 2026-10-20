@@ -52,6 +52,19 @@ export const postEditorText = {
   deleteConfirm: "Delete this post? This can't be undone.",
   fixErrors: 'Fix the highlighted fields and try again.',
   errorFallback: 'Something went wrong. Check your connection and try again.',
+  seoHeading: 'Search & sharing',
+  seoHelp: 'Leave these empty to use the title, excerpt and generated image.',
+  seoTitleLabel: 'SEO title',
+  seoDescriptionLabel: 'Meta description',
+  seoCount: '{count} characters. About {max} fit in search results.',
+  shareImageLabel: 'Share image',
+  shareImageHelp: 'Shown when the post is shared. Best at 1200 × 630.',
+  noindexLabel: 'Hide this post from search engines',
+  previewLabel: 'Search result preview',
+  upload: 'Upload image',
+  uploading: 'Uploading…',
+  uploadFailed: 'Upload failed. Try again.',
+  uploadHelp: 'PNG, JPEG, GIF, WebP, ICO or SVG, up to 1 MB.',
 };
 
 export type PostEditorText = typeof postEditorText;

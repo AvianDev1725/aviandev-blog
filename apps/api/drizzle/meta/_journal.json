@@ -71,6 +71,13 @@
       "when": 1792466044988,
       "tag": "0009_swift_catseye",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792467048752,
+      "tag": "0010_closed_diamondback",
+      "breakpoints": true
     }
   ]
 }

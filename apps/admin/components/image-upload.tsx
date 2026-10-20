@@ -2,11 +2,12 @@
 
 import { useState, type ChangeEvent } from 'react';
 import { uploadFile } from '@/lib/client';
-import type { ContentText } from './text';
 
-type Props = { inputId: string; text: ContentText; onUploaded: (url: string) => void };
+export type UploadLabels = { upload: string; uploading: string; uploadFailed: string; uploadHelp: string };
 
-export default function ImageUpload({ inputId, text, onUploaded }: Props) {
+type Props = { inputId: string; labels: UploadLabels; onUploaded: (url: string) => void };
+
+export default function ImageUpload({ inputId, labels, onUploaded }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -20,14 +21,14 @@ export default function ImageUpload({ inputId, text, onUploaded }: Props) {
     const result = await uploadFile(file);
     setBusy(false);
 
-    if (!result.ok) return setError(result.error || text.uploadFailed);
+    if (!result.ok) return setError(result.error || labels.uploadFailed);
     onUploaded(result.data.url);
   }
 
   return (
     <div className="mt-2 flex flex-wrap items-center gap-3">
       <label className="cursor-pointer rounded-lg px-3 py-1.5 text-sm ring-1 ring-zinc-300 hover:bg-zinc-100 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-zinc-900">
-        {busy ? text.uploading : text.upload}
+        {busy ? labels.uploading : labels.upload}
         <input
           id={inputId}
           type="file"
@@ -37,7 +38,7 @@ export default function ImageUpload({ inputId, text, onUploaded }: Props) {
           className="sr-only"
         />
       </label>
-      <span className="text-xs text-zinc-500">{text.uploadHelp}</span>
+      <span className="text-xs text-zinc-500">{labels.uploadHelp}</span>
       {error && (
         <span role="alert" className="text-sm text-red-600">
           {error}

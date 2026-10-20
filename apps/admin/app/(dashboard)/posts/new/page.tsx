@@ -12,5 +12,5 @@ export default async function NewPostPage() {
     getManyByCMS({ 'admin-post-editor': postEditorText, 'admin-rich-text': richTextText }),
   ]);
 
-  return <PostEditor text={cms['admin-post-editor']} richText={cms['admin-rich-text']} categories={categories} />;
+  return <PostEditor text={cms['admin-post-editor']} richText={cms['admin-rich-text']} categories={categories} blogUrl={process.env.BLOG_URL ?? 'http://localhost:3002'} />;
 }
