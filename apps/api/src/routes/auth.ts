@@ -87,6 +87,13 @@ auth.get('/me', async (c) => {
   return c.json({ user });
 });
 
+auth.get('/session', async (c) => {
+  c.header('Cache-Control', 'no-store');
+  const token = getCookie(c, SESSION_COOKIE);
+  const user = token ? await getSessionUser(token) : null;
+  return c.json({ user });
+});
+
 auth.post('/logout', async (c) => {
   const token = getCookie(c, SESSION_COOKIE);
   if (token) await deleteSession(token);

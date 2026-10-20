@@ -8,7 +8,7 @@ import { contentText, richTextText } from '../app/(dashboard)/content/text';
 import { emailKeys, emailText } from '../../api/src/content/email-text';
 import { categoriesText } from '../app/(dashboard)/categories/text';
 import { postEditorText, postsText } from '../app/(dashboard)/posts/text';
-import { categoryText, homeText, postText, seoText, siteText, previewText, } from '../../web/app/text';
+import { categoryText, homeText, postText, seoText, siteText, previewText, accountText } from '../../web/app/text';
 import { adminSeoText } from '../app/seo-text';
 
 type Value = string | number | boolean;
@@ -163,7 +163,7 @@ export const cmsRegistry: CmsEntry[] = [
     description: 'The banner and messages on private post previews.',
     fallback: previewText,
   },
-    {
+  {
     key: emailKeys.verifyEmail,
     name: 'Email: confirm email (readers)',
     description: 'Sent when a reader signs up. Placeholders: {name}, {url}.',
@@ -180,5 +180,11 @@ export const cmsRegistry: CmsEntry[] = [
     name: 'Email: account already exists',
     description: 'Sent when someone signs up with an email that already has an account. Placeholders: {name}, {loginUrl}, {resetUrl}.',
     fallback: emailText.accountExists,
+  },
+  {
+    key: 'web-account',
+    name: 'Blog: accounts',
+    description: 'Sign up, log in, password reset, email confirmation and the account menu. Placeholder: {email}.',
+    fallback: accountText,
   },
 ];
