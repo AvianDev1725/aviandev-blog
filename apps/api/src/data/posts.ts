@@ -1,4 +1,4 @@
-import { and, desc, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
+import { and, desc, eq, getTableColumns, inArray, sql, ne, notInArray } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { categories, postCategories, posts, users, postViews } from '../db/schema.js';
 import { readingMinutes } from '../lib/reading-time.js';
@@ -162,4 +162,49 @@ export async function getPreviewPost(id: number) {
     .where(eq(posts.id, id));
   const [post] = await attachCategories(rows);
   return post;
+}
+
+export async function getRelatedPosts(slug: string, limit = 3) {
+  const [current] = await db
+    .select({ id: posts.id })
+    .from(posts)
+    .where(and(eq(posts.slug, slug), eq(posts.published, true)));
+  if (!current) return null;
+
+  const visibleOthers = (exclude: number[]) =>
+    and(eq(posts.published, true), eq(posts.noindex, false), notInArray(posts.id, exclude));
+
+  const currentTopics = db
+    .select({ id: postCategories.categoryId })
+    .from(postCategories)
+    .where(eq(postCategories.postId, current.id));
+  const sharedTopics = sql<number>`count(${postCategories.categoryId})::int`;
+
+  const bestMatches = await db
+    .select({ id: posts.id })
+    .from(posts)
+    .innerJoin(postCategories, and(eq(postCategories.postId, posts.id), inArray(postCategories.categoryId, currentTopics)))
+    .where(visibleOthers([current.id]))
+    .groupBy(posts.id)
+    .orderBy(desc(sharedTopics), desc(posts.publishedAt))
+    .limit(limit);
+
+  const ids = bestMatches.map((row) => row.id);
+
+  if (ids.length < limit) {
+    const latest = await db
+      .select({ id: posts.id })
+      .from(posts)
+      .where(visibleOthers([current.id, ...ids]))
+      .orderBy(desc(posts.publishedAt))
+      .limit(limit - ids.length);
+    ids.push(...latest.map((row) => row.id));
+  }
+
+  if (ids.length === 0) return [];
+
+  const rows = await db.select(summaryColumns).from(posts).where(inArray(posts.id, ids));
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  const ordered = ids.map((id) => byId.get(id)).filter((row) => row !== undefined);
+  return attachCategories(ordered);
 }

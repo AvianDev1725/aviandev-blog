@@ -33,6 +33,7 @@ export const postText = {
   viewsOne: '1 view',
   viewsMany: '{count} views',
   readingTime: '{count} min read',
+  relatedTitle: 'Keep reading',
 };
 
 export const categoryText = {

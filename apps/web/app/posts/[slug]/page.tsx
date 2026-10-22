@@ -6,9 +6,10 @@ import PostView from '@/components/post-view';
 import ViewCounter from '@/components/view-counter';
 import { getComments } from '@/lib/comments';
 import { getContentByCMS } from '@/lib/content';
-import { getPost, getPosts } from '@/lib/posts';
+import { getPost, getPosts, getRelatedPosts } from '@/lib/posts';
 import { absoluteUrl } from '@/lib/site';
 import { commentText, postText, siteText } from '../../text';
+import RelatedPosts from '@/components/related-posts';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -47,11 +48,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;
-  const [post, text, comments, commentLabels] = await Promise.all([
+  const [post, text, comments, commentLabels, related] = await Promise.all([
     getPost(slug),
     getContentByCMS('web-post', postText),
     getComments(slug),
     getContentByCMS('web-comments', commentText),
+    getRelatedPosts(slug),
   ]);
   if (!post) notFound();
 
@@ -87,6 +89,7 @@ export default async function PostPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
         />
       </PostView>
+      <RelatedPosts posts={related} text={text} />
       <Comments slug={post.slug} initial={comments} text={commentLabels} />
     </>
   );

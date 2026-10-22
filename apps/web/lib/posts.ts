@@ -75,3 +75,20 @@ export async function getPreviewPost(token: string): Promise<Post | null> {
   if (!res.ok) return null;
   return res.json();
 }
+
+async function fetchRelatedPosts(slug: string) {
+  'use cache';
+  cacheLife('hours');
+  cacheTag(`post:${slug}`, 'posts', 'categories');
+
+  return (await apiGet<PostSummary[]>(`/related/${encodeURIComponent(slug)}`)) ?? [];
+}
+
+export async function getRelatedPosts(slug: string): Promise<PostSummary[]> {
+  try {
+    return await fetchRelatedPosts(slug);
+  } catch (err) {
+    console.error('[blog] could not load related posts:', err);
+    return [];
+  }
+}
