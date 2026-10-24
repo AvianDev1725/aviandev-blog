@@ -83,6 +83,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@aviandev/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@aws-sdk/client-s3':
         specifier: ^3.1153.0
         version: 3.1153.0

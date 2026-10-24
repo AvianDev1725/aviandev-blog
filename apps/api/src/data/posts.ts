@@ -2,6 +2,7 @@ import { and, desc, eq, getTableColumns, inArray, sql, ne, notInArray } from 'dr
 import { db } from '../db/index.js';
 import { categories, postCategories, posts, users, postViews } from '../db/schema.js';
 import { readingMinutes } from '../lib/reading-time.js';
+import { syncPostSections } from './sections.js';
 
 export type NewPost = typeof posts.$inferInsert;
 export type PostInput = NewPost & { categoryIds?: number[] };
@@ -99,6 +100,7 @@ export async function createPost({ categoryIds = [], ...input }: PostInput) {
 
   await setPostCategories(post.id, categoryIds);
   const [withCategories] = await attachCategories([post]);
+  await syncPostSections(post.id);
   return withCategories;
 }
 
@@ -117,6 +119,7 @@ export async function updatePost(id: number, { categoryIds, ...input }: Partial<
 
   if (categoryIds) await setPostCategories(id, categoryIds);
   const [withCategories] = await attachCategories([post]);
+  await syncPostSections(post.id);
   return withCategories;
 }
 

@@ -113,6 +113,20 @@
       "when": 1792501842603,
       "tag": "0015_unusual_junta",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1792805096011,
+      "tag": "0016_search_extensions",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792805353072,
+      "tag": "0017_bright_vampiro",
+      "breakpoints": true
     }
   ]
 }

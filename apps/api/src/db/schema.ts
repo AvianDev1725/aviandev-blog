@@ -12,6 +12,8 @@ import {
   primaryKey,
   date,
   index,
+  uniqueIndex,
+  vector,
 } from 'drizzle-orm/pg-core';
 import type { FieldDefinition } from '../content/field-types.js';
 
@@ -196,5 +198,29 @@ export const comments = pgTable(
   (table) => [
     index('comments_post_status_idx').on(table.postId, table.status, table.createdAt),
     index('comments_parent_idx').on(table.parentId),
+  ],
+);
+
+export const postSections = pgTable(
+  'post_sections',
+  {
+    id: serial('id').primaryKey(),
+    postId: integer('post_id')
+      .notNull()
+      .references(() => posts.id, { onDelete: 'cascade' }),
+    position: integer('position').notNull(),
+    anchor: text('anchor').notNull(),
+    heading: text('heading').notNull(),
+    content: text('content').notNull(),
+    contentHash: text('content_hash').notNull(),
+    embedding: vector('embedding', { dimensions: 384 }),
+  },
+  (table) => [
+    uniqueIndex('post_sections_post_position_idx').on(table.postId, table.position),
+    index('post_sections_text_idx').using(
+      'gin',
+      sql`to_tsvector('english', ${table.heading} || ' ' || ${table.content})`,
+    ),
+    index('post_sections_embedding_idx').using('hnsw', table.embedding.op('vector_cosine_ops')),
   ],
 );

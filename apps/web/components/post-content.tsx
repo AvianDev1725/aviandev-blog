@@ -1,5 +1,5 @@
 import { Fragment, type ReactNode } from 'react';
-import { isSafeLink } from '@aviandev/core/text';
+import { headingAnchors, isSafeLink } from '@aviandev/core/text';
 import CodeBlock from './code-block';
 import PostImage from './post-image';
 
@@ -11,6 +11,8 @@ export type DocNode = {
   text?: string;
   marks?: Mark[];
 };
+
+type Extra = { priority?: boolean; anchor?: string };
 
 function withMarks(text: string, marks: Mark[] = []): ReactNode {
   return marks.reduce<ReactNode>((child, mark) => {
@@ -50,7 +52,7 @@ function renderNodes(nodes: DocNode[] = []): ReactNode {
   return nodes.map((node, index) => <Fragment key={index}>{renderNode(node)}</Fragment>);
 }
 
-function renderNode(node: DocNode): ReactNode {
+function renderNode(node: DocNode, extra: Extra = {}): ReactNode {
   switch (node.type) {
     case 'text':
       return withMarks(node.text ?? '', node.marks);
@@ -59,7 +61,7 @@ function renderNode(node: DocNode): ReactNode {
     case 'heading': {
       const level = Math.min(4, Math.max(2, Number(node.attrs?.level) || 2));
       const Tag = `h${level}` as 'h2' | 'h3' | 'h4';
-      return <Tag>{renderNodes(node.content)}</Tag>;
+      return <Tag id={extra.anchor}>{renderNodes(node.content)}</Tag>;
     }
     case 'bulletList':
       return <ul>{renderNodes(node.content)}</ul>;
@@ -74,14 +76,9 @@ function renderNode(node: DocNode): ReactNode {
     case 'codeBlock': {
       const language = typeof node.attrs?.language === 'string' ? node.attrs.language : '';
       return <CodeBlock code={textOf(node)} language={language} />;
-    } case 'codeBlock': {
-      const language = typeof node.attrs?.language === 'string' ? node.attrs.language : '';
-      return <CodeBlock code={textOf(node)} language={language} />;
     }
     case 'image':
-      return <PostImage {...node.attrs} />;
-    case 'hardBreak':
-      return <br />;
+      return <PostImage {...node.attrs} priority={extra.priority} />;
     case 'hardBreak':
       return <br />;
     case 'horizontalRule':
@@ -92,5 +89,25 @@ function renderNode(node: DocNode): ReactNode {
 }
 
 export default function PostContent({ doc }: { doc: { content?: unknown[] } }) {
-  return <>{renderNodes((doc.content ?? []) as DocNode[])}</>;
+  const nodes = (doc.content ?? []) as DocNode[];
+
+  const firstImage = nodes.findIndex((node) => node.type === 'image');
+  const loadFirstImageEarly = firstImage !== -1 && firstImage < 4;
+
+  const headingIndexes = nodes.flatMap((node, index) => (node.type === 'heading' ? [index] : []));
+  const anchors = headingAnchors(headingIndexes.map((index) => textOf(nodes[index])));
+  const anchorAt = new Map(headingIndexes.map((nodeIndex, i) => [nodeIndex, anchors[i]]));
+
+  return (
+    <>
+      {nodes.map((node, index) => (
+        <Fragment key={index}>
+          {renderNode(node, {
+            priority: loadFirstImageEarly && index === firstImage,
+            anchor: anchorAt.get(index),
+          })}
+        </Fragment>
+      ))}
+    </>
+  );
 }
