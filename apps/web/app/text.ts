@@ -165,3 +165,32 @@ export const commentText = {
 };
 
 export type CommentText = typeof commentText;
+
+export const searchText = {
+  searchLabel: 'Search',
+  openSearch: 'Search posts',
+  placeholder: 'Search AvianDev blog',
+  clear: 'Clear search',
+  cancel: 'Cancel',
+  close: 'Close',
+  submit: 'Search',
+  searching: 'Searching…',
+  resultOne: '1 result',
+  resultMany: '{count} results',
+  noResults: 'No results for “{query}”.',
+  closestMatches: 'Closest matches',
+  allTopics: 'All',
+  topicsLabel: 'Filter by topic',
+  recent: 'Recent searches',
+  clearRecent: 'Clear',
+  tryThese: 'Try searching for',
+  examples: 'ScrollTrigger, stagger animations, timelines, page transitions',
+  seeAll: 'See all results',
+  introduction: 'Introduction',
+  keyboardHelp: '↑ ↓ to move · Enter to open · Esc to close',
+  pageTitle: 'Search',
+  tooShort: 'Type at least 2 characters.',
+  error: 'Search isn’t available right now. Please try again.',
+};
+
+export type SearchText = typeof searchText;

@@ -8,7 +8,7 @@ import { contentText, richTextText } from '../app/(dashboard)/content/text';
 import { emailKeys, emailText } from '../../api/src/content/email-text';
 import { categoriesText } from '../app/(dashboard)/categories/text';
 import { postEditorText, postsText } from '../app/(dashboard)/posts/text';
-import { categoryText, homeText, postText, seoText, siteText, previewText, accountText, commentText } from '../../web/app/text';
+import { categoryText, homeText, postText, seoText, siteText, previewText, accountText, commentText, searchText } from '../../web/app/text';
 import { adminSeoText } from '../app/seo-text';
 import { commentsText } from '../app/(dashboard)/comments/text';
 
@@ -204,5 +204,11 @@ export const cmsRegistry: CmsEntry[] = [
     name: 'Admin: comments',
     description: 'The comment moderation page. Placeholders: {count}, {title}, {name}.',
     fallback: commentsText,
+  },
+  {
+    key: 'web-search',
+    name: 'Blog: search',
+    description: 'The search box and search page. "Examples" is a comma-separated list of suggested searches. Placeholders: {count}, {query}.',
+    fallback: searchText,
   },
 ];
