@@ -60,7 +60,7 @@ function packBlocks(blocks: string[]) {
 
 const fingerprint = (text: string) => createHash('sha256').update(text).digest('hex').slice(0, 32);
 
-export function splitIntoSections(doc: unknown): Section[] {
+export function splitIntoSections(doc: unknown, title = ''): Section[] {
   const nodes = (doc as DocNode | null)?.content ?? [];
   const headings = nodes.filter((node) => node.type === 'heading');
   const anchors = headingAnchors(headings.map(headingText));
@@ -89,9 +89,13 @@ export function splitIntoSections(doc: unknown): Section[] {
         anchor: group.anchor,
         heading: group.heading,
         content,
-        contentHash: fingerprint(`${group.heading}\n${content}`),
+        contentHash: fingerprint(`${title}\n${group.heading}\n${content}`),
       });
     }
   }
   return sections;
+}
+
+export function embeddingText(title: string, section: Pick<Section, 'heading' | 'content'>) {
+  return [title, section.heading, section.content].filter(Boolean).join('\n');
 }
