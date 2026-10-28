@@ -1,0 +1,1 @@
+ALTER TABLE "assistant_settings" ALTER COLUMN "model" SET DEFAULT 'openai/gpt-oss-120b';

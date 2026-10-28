@@ -31,6 +31,8 @@ import moderation from './routes/moderation.js';
 import relatedRoute from './routes/related.js';
 import searchRoute from './routes/search.js';
 import insights from './routes/insights.js';
+import askRoute from './routes/ask.js';
+import assistantRoute from './routes/assistant.js';
 
 const app = new Hono<AuthEnv>();
 
@@ -53,6 +55,8 @@ app.route('/moderation', moderation);
 app.route('/related', relatedRoute);
 app.route('/search', searchRoute);
 app.route('/insights', insights);
+app.route('/ask', askRoute);
+app.route('/assistant', assistantRoute);
 
 app.get('/', (c) => c.text('Hello Hono!'));
 

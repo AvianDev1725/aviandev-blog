@@ -1,4 +1,4 @@
-import { and, asc, cosineDistance, desc, eq, inArray, isNotNull, sql, type SQL } from 'drizzle-orm';
+import { and, asc, cosineDistance, desc, eq, inArray, isNotNull, or, sql, type SQL } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { categories, postCategories, posts, postSections } from '../db/schema.js';
 import { embedQuery } from '../lib/embeddings.js';
@@ -11,6 +11,13 @@ const WEIGHTS = { keyword: 1, meaning: 1, typo: 0.6 } as const;
 
 type Signal = keyof typeof WEIGHTS;
 export type SnippetPart = { text: string; highlight: boolean };
+
+export type SearchScope = {
+  /** Include unpublished posts. Only the admin bot sets this. */
+  includeDrafts?: boolean;
+  /** With includeDrafts: only this author's drafts (published posts are always included). */
+  authorId?: number;
+};
 
 const START = '\u0002';
 const STOP = '\u0003';
@@ -28,6 +35,18 @@ export function toSnippetParts(snippet: string): SnippetPart[] {
     if (after) parts.push({ text: after, highlight: false });
   }
   return parts;
+}
+
+export function visiblePosts(scope: SearchScope = {}): SQL | undefined {
+  if (!scope.includeDrafts) return eq(posts.published, true);
+  if (scope.authorId !== undefined) return or(eq(posts.published, true), eq(posts.authorId, scope.authorId));
+  return undefined;
+}
+
+function visibilityFilter(scope: SearchScope): SQL | undefined {
+  const visible = visiblePosts(scope);
+  if (!visible) return undefined;
+  return inArray(postSections.postId, db.select({ id: posts.id }).from(posts).where(visible));
 }
 
 function topicFilter(topic?: string): SQL | undefined {
@@ -139,9 +158,9 @@ async function topicsFor(postIds: number[]) {
     .orderBy(desc(sql`count(distinct ${postCategories.postId})`), asc(categories.name));
 }
 
-export async function searchPosts(text: string, options: { topic?: string; limit?: number } = {}) {
+export async function searchPosts(text: string, options: { topic?: string; limit?: number } & SearchScope = {}) {
   const limit = Math.min(Math.max(options.limit ?? 10, 1), 20);
-  const filter = topicFilter(options.topic);
+  const filter = and(visibilityFilter(options), topicFilter(options.topic));
   const query = sql`websearch_to_tsquery('english', ${text})`;
 
   const [keyword, meaning, typo] = await Promise.all([

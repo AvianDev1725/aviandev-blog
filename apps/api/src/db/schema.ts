@@ -248,3 +248,43 @@ export const dismissedSearches = pgTable('dismissed_searches', {
   dismissedAt: timestamp('dismissed_at').notNull().defaultNow(),
   dismissedBy: integer('dismissed_by').references(() => users.id, { onDelete: 'set null' }),
 });
+
+export const askStatus = pgEnum('ask_status', ['answered', 'not_found', 'error']);
+
+export const assistantSettings = pgTable('assistant_settings', {
+  id: integer('id').primaryKey().default(1),
+  enabled: boolean('enabled').notNull().default(false),
+  adminEnabled: boolean('admin_enabled').notNull().default(false),
+  provider: text('provider').notNull().default('groq'),
+  model: text('model').notNull().default('openai/gpt-oss-120b'),
+  baseUrl: text('base_url').notNull().default(''),
+  dailyLimit: integer('daily_limit').notNull().default(800),
+  perReaderLimit: integer('per_reader_limit').notNull().default(20),
+  answerLength: text('answer_length').notNull().default('medium'),
+  creativity: integer('creativity').notNull().default(2),
+  updatedBy: integer('updated_by').references(() => users.id, { onDelete: 'set null' }),
+  updatedAt: timestamp('updated_at')
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+export const askEvents = pgTable(
+  'ask_events',
+  {
+    id: text('id').primaryKey(),
+    question: text('question').notNull(),
+    visitor: text('visitor').notNull(),
+    status: askStatus('status').notNull(),
+    audience: text('audience').notNull().default('reader'),
+    sourceCount: integer('source_count').notNull().default(0),
+    helpful: boolean('helpful'),
+    provider: text('provider').notNull(),
+    model: text('model').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('ask_events_created_idx').on(table.createdAt),
+    index('ask_events_visitor_idx').on(table.visitor, table.createdAt),
+  ],
+);
