@@ -1,37 +1,31 @@
-import { and, asc, cosineDistance, eq, isNotNull, sql } from 'drizzle-orm';
-import { db } from '../src/db/index.js';
-import { posts, postSections } from '../src/db/schema.js';
-import { embedQuery } from '../src/lib/embeddings.js';
+import { searchPosts } from '../src/data/search.js';
 
 async function main() {
   const query = process.argv.slice(2).join(' ').trim();
-  if (!query) {
+  if (query.length < 2) {
     console.log('Usage: pnpm search:try "your search"');
     return;
   }
 
-  const vector = await embedQuery(query);
-  const distance = cosineDistance(postSections.embedding, vector);
+  const started = Date.now();
+  const { results, suggestions, topics } = await searchPosts(query);
+  const highlight = (parts: { text: string; highlight: boolean }[]) =>
+    parts.map((part) => (part.highlight ? `[${part.text}]` : part.text)).join('');
 
-  const results = await db
-    .select({
-      title: posts.title,
-      heading: postSections.heading,
-      anchor: postSections.anchor,
-      similarity: sql<number>`1 - (${distance})`,
-    })
-    .from(postSections)
-    .innerJoin(posts, eq(postSections.postId, posts.id))
-    .where(and(isNotNull(postSections.embedding)))
-    .orderBy(asc(distance))
-    .limit(5);
-
-  console.log(`\nClosest sections to "${query}":\n`);
+  console.log(`\n"${query}": ${results.length} result(s) in ${Date.now() - started} ms\n`);
   for (const result of results) {
-    const where = result.heading ? `${result.title} › ${result.heading}` : result.title;
-    console.log(`  ${(result.similarity * 100).toFixed(0).padStart(3)}%  ${where}`);
+    const where = result.heading ? `${result.postTitle} › ${result.heading}` : result.postTitle;
+    console.log(`  ${where}   (${result.matchedBy.join(' + ')})`);
+    console.log(`     ${highlight(result.snippet)}`);
+    console.log(`     ${result.url}\n`);
   }
-  console.log();
+
+  if (results.length === 0 && suggestions.length > 0) {
+    console.log('  No results. Closest by meaning:');
+    for (const suggestion of suggestions) console.log(`   · ${suggestion.postTitle} › ${suggestion.heading || 'Introduction'}`);
+    console.log();
+  }
+  if (topics.length > 0) console.log(`  Topics: ${topics.map((topic) => `${topic.name} (${topic.count})`).join(', ')}\n`);
 }
 
 main().catch((error) => {
