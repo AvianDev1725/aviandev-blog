@@ -6,11 +6,24 @@ import { postEditorText } from '../text';
 
 export const instant = false;
 
-export default async function NewPostPage() {
-  const [categories, cms] = await Promise.all([
+type Props = { searchParams: Promise<{ title?: string | string[] }> };
+
+export default async function NewPostPage({ searchParams }: Props) {
+  const [{ title }, categories, cms] = await Promise.all([
+    searchParams,
     apiGet<Category[]>('/categories').then((list) => list ?? []),
     getManyByCMS({ 'admin-post-editor': postEditorText, 'admin-rich-text': richTextText }),
   ]);
 
-  return <PostEditor text={cms['admin-post-editor']} richText={cms['admin-rich-text']} categories={categories} blogUrl={process.env.BLOG_URL ?? 'http://localhost:3002'} />;
+  const initialTitle = typeof title === 'string' ? title.trim().slice(0, 200) : undefined;
+
+  return (
+    <PostEditor
+      text={cms['admin-post-editor']}
+      richText={cms['admin-rich-text']}
+      categories={categories}
+      blogUrl={process.env.BLOG_URL ?? 'http://localhost:3002'}
+      initialTitle={initialTitle || undefined}
+    />
+  );
 }

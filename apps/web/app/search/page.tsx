@@ -2,12 +2,14 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { fill, formatCount } from '@aviandev/core/text';
+import SearchPageTracker from '@/components/search/search-page-tracker';
 import SearchResult from '@/components/search/search-result';
 import { getContentByCMS } from '@/lib/content';
 import { searchOnServer } from '@/lib/search';
 import { searchText, type SearchText } from '../text';
+import SearchResultsSkeleton from '@/components/search/search-results-skeleton';
 
-type Params = Promise<{ q?: string | string[]; topic?: string | string[] }>;
+type Params = Promise<{ q?: string | string[]; topic?: string | string[]; sid?: string | string[] }>;
 
 export async function generateMetadata(): Promise<Metadata> {
   const text = await getContentByCMS('web-search', searchText);
@@ -19,7 +21,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Param
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-3xl font-bold tracking-tight">{text.pageTitle}</h1>
-      <Suspense fallback={<SearchForm text={text} query="" />}>
+      <Suspense fallback={<SearchResultsSkeleton label={text.searching} />}>
         <Results searchParams={searchParams} text={text} />
       </Suspense>
     </div>
@@ -54,6 +56,8 @@ async function Results({ searchParams, text }: { searchParams: Params; text: Sea
   const params = await searchParams;
   const query = first(params.q).slice(0, 200);
   const topic = first(params.topic);
+  const sid = first(params.sid);
+  const searchId = /^[a-z0-9-]{8,64}$/i.test(sid) ? sid : undefined;
 
   if (query.length < 2) {
     return (
@@ -81,9 +85,8 @@ async function Results({ searchParams, text }: { searchParams: Params; text: Sea
               key={item.slug || 'all'}
               href={href(item.slug)}
               aria-current={topic === item.slug ? 'page' : undefined}
-              className={`inline-flex h-9 shrink-0 items-center rounded-full px-3.5 text-sm font-medium ${
-                topic === item.slug ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
-              }`}
+              className={`inline-flex h-9 shrink-0 items-center rounded-full px-3.5 text-sm font-medium ${topic === item.slug ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+                }`}
             >
               {item.name}
               {item.count > 0 && <span className="ml-1 opacity-60">{item.count}</span>}
@@ -104,15 +107,23 @@ async function Results({ searchParams, text }: { searchParams: Params; text: Sea
           {data.results.length === 0 && items.length > 0 && (
             <h2 className="mt-6 text-xs font-semibold uppercase tracking-wide text-zinc-500">{text.closestMatches}</h2>
           )}
-          <ul className="mt-2 divide-y divide-zinc-100">
-            {items.map((item) => (
-              <li key={item.url}>
-                <Link href={item.url} className="-mx-4 block px-4 py-4 active:bg-zinc-50 sm:mx-0 sm:rounded-xl sm:px-3 sm:hover:bg-zinc-50">
-                  <SearchResult result={item} introduction={text.introduction} />
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <SearchPageTracker
+            key={`${query}|${topic}|${searchId ?? ''}`}
+            query={query}
+            topic={topic}
+            resultCount={data.results.length}
+            searchId={searchId}
+          >
+            <ul className="mt-2 divide-y divide-zinc-100">
+              {items.map((item) => (
+                <li key={item.url}>
+                  <Link href={item.url} className="-mx-4 block px-4 py-4 active:bg-zinc-50 sm:mx-0 sm:rounded-xl sm:px-3 sm:hover:bg-zinc-50">
+                    <SearchResult result={item} introduction={text.introduction} />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </SearchPageTracker>
         </>
       )}
     </>

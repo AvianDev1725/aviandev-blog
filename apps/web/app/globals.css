@@ -111,3 +111,43 @@ a, button, input, select, textarea, label, summary {
 @media (prefers-reduced-motion: no-preference) {
   .search-sheet { animation: fade-in 150ms ease-out; }
 }
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: rgb(228 228 231);
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65), transparent);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer::after {
+    animation: none;
+  }
+}
+
+.search-skeleton {
+  animation: search-skeleton-in 0.2s ease-out 0.15s both;
+}
+
+@keyframes search-skeleton-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

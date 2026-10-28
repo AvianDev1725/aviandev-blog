@@ -16,6 +16,7 @@ export const shellText = {
   more: 'More',
   comments: 'Comments',
   waitingCount: '{count} waiting',
+  insights: 'Search insights',
 };
 
 export const dashboardText = {

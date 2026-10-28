@@ -36,14 +36,15 @@ type Props = {
   categories: Category[];
   post?: EditorPost;
   blogUrl: string;
+  initialTitle?: string;
 };
 
-export default function PostEditor({ text, richText, categories, post, blogUrl }: Props) {
+export default function PostEditor({ text, richText, categories, post, blogUrl, initialTitle }: Props) {
   const router = useRouter();
   const isNew = !post;
 
-  const [title, setTitle] = useState(post?.title ?? '');
-  const [slug, setSlug] = useState(post?.slug ?? '');
+  const [title, setTitle] = useState(post?.title ?? initialTitle ?? '');
+  const [slug, setSlug] = useState(post?.slug ?? (initialTitle ? toSlug(initialTitle) : ''));
   const [slugEdited, setSlugEdited] = useState(!isNew);
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? '');
   const [content, setContent] = useState<JSONContent>(post?.content ?? emptyDocument);

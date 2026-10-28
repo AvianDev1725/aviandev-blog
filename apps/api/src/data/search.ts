@@ -5,7 +5,7 @@ import { embedQuery } from '../lib/embeddings.js';
 
 const CANDIDATES = 30;
 const MIN_MEANING_SIMILARITY = 0.6;
-const MIN_TYPO_SIMILARITY = 0.5;
+const MIN_TYPO_SIMILARITY = 0.7;
 const FUSION_K = 60;
 const WEIGHTS = { keyword: 1, meaning: 1, typo: 0.6 } as const;
 

@@ -1,4 +1,4 @@
-import { Blocks, FileText, LayoutDashboard, MessageSquare, Newspaper, Tags, Users, type LucideIcon } from 'lucide-react';
+import { Blocks, FileText, LayoutDashboard, MessageSquare, Newspaper, Tags, Users, Lightbulb, type LucideIcon } from 'lucide-react';
 
 export type Role = 'reader' | 'admin' | 'super_admin';
 
@@ -24,6 +24,7 @@ export type SidebarLabels = {
   more: string;
   comments: string;
   waitingCount: string;
+  insights: string;
 };
 
 export type NavBadges = Record<string, number>;
@@ -37,6 +38,7 @@ export function navItems(labels: SidebarLabels, role: Role): NavItem[] {
     { href: '/categories', label: labels.categories, icon: Tags },
     { href: '/models', label: labels.models, icon: Blocks, roles: ['super_admin'] },
     { href: '/team', label: labels.team, icon: Users, roles: ['super_admin'] },
+    { href: '/insights', label: labels.insights, icon: Lightbulb, roles: ['super_admin'] },
   ];
   return items.filter((item) => !item.roles || item.roles.includes(role));
 }

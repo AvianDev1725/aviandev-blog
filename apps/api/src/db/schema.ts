@@ -224,3 +224,27 @@ export const postSections = pgTable(
     index('post_sections_embedding_idx').using('hnsw', table.embedding.op('vector_cosine_ops')),
   ],
 );
+
+export const searchEvents = pgTable(
+  'search_events',
+  {
+    id: serial('id').primaryKey(),
+    clientId: text('client_id').unique(),
+    query: text('query').notNull(),
+    resultCount: integer('result_count').notNull(),
+    topic: text('topic'),
+    openedUrl: text('opened_url'),
+    progress: integer('progress').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('search_events_created_idx').on(table.createdAt),
+    index('search_events_query_idx').on(table.query),
+  ],
+);
+
+export const dismissedSearches = pgTable('dismissed_searches', {
+  query: text('query').primaryKey(),
+  dismissedAt: timestamp('dismissed_at').notNull().defaultNow(),
+  dismissedBy: integer('dismissed_by').references(() => users.id, { onDelete: 'set null' }),
+});

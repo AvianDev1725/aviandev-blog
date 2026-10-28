@@ -6,10 +6,13 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode,
 import { fill, formatCount } from '@aviandev/core/text';
 import type { SearchText } from '@/app/text';
 import type { SearchResponse, SearchResult as Result, SearchTopic } from '@/lib/search';
+import { newSearchId, sendSearchEvent, type SearchProgress } from '@/lib/search-events';
 import SearchResult from './search-result';
+import SearchDropdownSkeleton from './search-dropdown-skeleton';
 
 const RECENT_KEY = 'aviandev-recent-searches';
 const DEBOUNCE_MS = 180;
+const SETTLE_MS = 2000;
 
 function readRecent(): string[] {
   try {
@@ -24,7 +27,7 @@ function saveRecent(query: string) {
   try {
     const next = [query, ...readRecent().filter((item) => item.toLowerCase() !== query.toLowerCase())].slice(0, 5);
     localStorage.setItem(RECENT_KEY, JSON.stringify(next));
-  } catch {}
+  } catch { }
 }
 
 function isTyping(target: EventTarget | null) {
@@ -50,6 +53,7 @@ function ClockIcon() {
   );
 }
 
+type Pending = { id: string; query: string; resultCount: number; topic: string; sent: boolean };
 type Props = { text: SearchText; icon?: string };
 
 export default function SearchBox({ text, icon }: Props) {
@@ -59,6 +63,7 @@ export default function SearchBox({ text, icon }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const desktopInput = useRef<HTMLInputElement>(null);
   const mobileInput = useRef<HTMLInputElement>(null);
+  const pending = useRef<Pending | null>(null);
 
   const [desktopOpen, setDesktopOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -76,7 +81,28 @@ export default function SearchBox({ text, icon }: Props) {
   const items: Result[] = data ? (showingSuggestions ? data.suggestions : data.results) : [];
   const hasOptions = open && items.length > 0;
 
+  function sendPending(current: Pending, progress: SearchProgress, openedUrl?: string) {
+    current.sent = true;
+    sendSearchEvent({
+      clientId: current.id,
+      query: current.query,
+      resultCount: current.resultCount,
+      topic: current.topic || undefined,
+      openedUrl,
+      progress,
+    });
+  }
+
+  function flushSearch(openedUrl?: string) {
+    const current = pending.current;
+    if (!current) return;
+    pending.current = null;
+    if (openedUrl) sendPending(current, 100, openedUrl);
+    else if (!current.sent) sendPending(current, 0);
+  }
+
   function close() {
+    flushSearch();
     setDesktopOpen(false);
     setMobileOpen(false);
   }
@@ -99,7 +125,9 @@ export default function SearchBox({ text, icon }: Props) {
     }
 
     const controller = new AbortController();
+    let settleTimer: ReturnType<typeof setTimeout> | undefined;
     setStatus('loading');
+
     const timer = setTimeout(async () => {
       try {
         const params = new URLSearchParams({ q: trimmed, limit: '8' });
@@ -107,10 +135,17 @@ export default function SearchBox({ text, icon }: Props) {
         const res = await fetch(`/api/search?${params}`, { signal: controller.signal });
         if (!res.ok) throw new Error(String(res.status));
         const next: SearchResponse = await res.json();
+
         setData(next);
         if (!topic) setTopics(next.topics);
         setActive(0);
         setStatus('idle');
+
+        const current: Pending = { id: newSearchId(), query: trimmed, resultCount: next.results.length, topic, sent: false };
+        pending.current = current;
+        settleTimer = setTimeout(() => {
+          if (pending.current === current) sendPending(current, 0);
+        }, SETTLE_MS);
       } catch {
         if (!controller.signal.aborted) setStatus('error');
       }
@@ -118,6 +153,7 @@ export default function SearchBox({ text, icon }: Props) {
 
     return () => {
       clearTimeout(timer);
+      clearTimeout(settleTimer);
       controller.abort();
     };
   }, [open, trimmed, topic]);
@@ -125,11 +161,11 @@ export default function SearchBox({ text, icon }: Props) {
   useEffect(() => {
     if (!desktopOpen) return;
     const onPointer = (event: MouseEvent) => {
-      if (!container.current?.contains(event.target as Node)) setDesktopOpen(false);
+      if (!container.current?.contains(event.target as Node)) close();
     };
     document.addEventListener('mousedown', onPointer);
     return () => document.removeEventListener('mousedown', onPointer);
-  }, [desktopOpen]);
+  });
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -159,6 +195,12 @@ export default function SearchBox({ text, icon }: Props) {
   }, []);
 
   useEffect(() => {
+    const onLeave = () => flushSearch();
+    window.addEventListener('pagehide', onLeave);
+    return () => window.removeEventListener('pagehide', onLeave);
+  });
+
+  useEffect(() => {
     if (hasOptions) document.getElementById(`${id}-option-${active}`)?.scrollIntoView({ block: 'nearest' });
   }, [active, hasOptions, id]);
 
@@ -166,11 +208,31 @@ export default function SearchBox({ text, icon }: Props) {
     if (trimmed.length >= 2) saveRecent(trimmed);
   }
 
-  function go(url: string) {
+  function openResult(url: string) {
     remember();
+    flushSearch(url);
     close();
     desktopInput.current?.blur();
     router.push(url);
+  }
+
+  function allResultsHref(searchId?: string) {
+    const params = new URLSearchParams({ q: trimmed });
+    if (topic) params.set('topic', topic);
+    if (searchId) params.set('sid', searchId);
+    return `/search?${params}`;
+  }
+
+  function openAllResults() {
+    const current = pending.current;
+    if (current) {
+      pending.current = null;
+      sendPending(current, 50);
+    }
+    remember();
+    close();
+    desktopInput.current?.blur();
+    router.push(allResultsHref(current?.id));
   }
 
   function runSearch(value: string) {
@@ -189,8 +251,8 @@ export default function SearchBox({ text, icon }: Props) {
     } else if (event.key === 'Enter') {
       event.preventDefault();
       const item = items[active];
-      if (item) go(item.url);
-      else if (trimmed.length >= 2) go(`/search?q=${encodeURIComponent(trimmed)}`);
+      if (item) openResult(item.url);
+      else if (trimmed.length >= 2) openAllResults();
     } else if (event.key === 'Escape') {
       event.preventDefault();
       close();
@@ -275,7 +337,7 @@ export default function SearchBox({ text, icon }: Props) {
                 onClick={() => {
                   try {
                     localStorage.removeItem(RECENT_KEY);
-                  } catch {}
+                  } catch { }
                   setRecent([]);
                 }}
                 className="h-8 px-3 text-xs font-medium text-zinc-500 hover:text-zinc-900"
@@ -323,9 +385,8 @@ export default function SearchBox({ text, icon }: Props) {
                 type="button"
                 aria-pressed={topic === item.slug}
                 onClick={() => setTopic(item.slug)}
-                className={`h-8 shrink-0 rounded-full px-3 text-sm font-medium ${
-                  topic === item.slug ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-700 active:bg-zinc-200 sm:hover:bg-zinc-200'
-                }`}
+                className={`h-8 shrink-0 rounded-full px-3 text-sm font-medium ${topic === item.slug ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-700 active:bg-zinc-200 sm:hover:bg-zinc-200'
+                  }`}
               >
                 {item.name}
                 {item.count > 0 && <span className="ml-1 opacity-60">{item.count}</span>}
@@ -346,6 +407,7 @@ export default function SearchBox({ text, icon }: Props) {
                 href={item.url}
                 onClick={() => {
                   remember();
+                  flushSearch(item.url);
                   close();
                 }}
                 onMouseMove={() => setActive(index)}
@@ -358,10 +420,10 @@ export default function SearchBox({ text, icon }: Props) {
         </ul>
         {data && data.results.length > 0 && (
           <Link
-            href={`/search?q=${encodeURIComponent(trimmed)}${topic ? `&topic=${encodeURIComponent(topic)}` : ''}`}
-            onClick={() => {
-              remember();
-              close();
+            href={allResultsHref()}
+            onClick={(event) => {
+              event.preventDefault();
+              openAllResults();
             }}
             className="mx-1 mt-1 flex h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium text-zinc-700 active:bg-zinc-100 sm:hover:bg-zinc-100"
           >

@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { requireAuth, requireRole, type AuthEnv, type SessionUser } from './middleware/auth.js';
+import { requireAuth, requireRole, type AuthEnv } from './middleware/auth.js';
 import { createPostSchema, updatePostSchema } from './schemas/post.js';
 import {
   getPublishedPosts,
@@ -8,7 +8,7 @@ import {
   updatePost,
   deletePost,
   getPostById,
-  findMissingCategories
+  findMissingCategories,
 } from './data/posts.js';
 import categoriesRoute from './routes/categories.js';
 import { validateJson } from './lib/validate.js';
@@ -30,39 +30,29 @@ import commentsRoute from './routes/comments.js';
 import moderation from './routes/moderation.js';
 import relatedRoute from './routes/related.js';
 import searchRoute from './routes/search.js';
+import insights from './routes/insights.js';
 
 const app = new Hono<AuthEnv>();
 
 const canWrite = [requireAuth, requireRole('admin', 'super_admin')] as const;
 
 app.route('/auth', auth);
-
 app.route('/users', usersRoute);
-
 app.route('/invitations', invitationsRoute);
-
 app.route('/categories', categoriesRoute);
-
 app.route('/content-models', contentModelsRoute);
 app.route('/content', contentRoute);
 app.route('/content-fragments', fragmentsRoute);
-
 app.route('/admin/posts', adminPostsRoute);
-
 app.route('/media', mediaRoute);
-
 app.route('/preview', previewRoute);
-
 app.route('/views', viewsRoute);
-
 app.route('/readers', readers);
-
 app.route('/comments', commentsRoute);
 app.route('/moderation', moderation);
-
 app.route('/related', relatedRoute);
-
 app.route('/search', searchRoute);
+app.route('/insights', insights);
 
 app.get('/', (c) => c.text('Hello Hono!'));
 
@@ -100,6 +90,8 @@ app.patch('/posts/:id', ...canWrite, validateJson(updatePostSchema), async (c) =
   }
 
   const post = await updatePost(id, body);
+  if (!post) return c.json({ error: 'Post not found' }, 404);
+
   if (existing.published || post.published) notifyPostsChanged([existing.slug, post.slug]);
   return c.json(post);
 });

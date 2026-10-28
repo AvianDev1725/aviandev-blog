@@ -127,6 +127,20 @@
       "when": 1792805353072,
       "tag": "0017_bright_vampiro",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793181061121,
+      "tag": "0018_natural_triton",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793183711197,
+      "tag": "0019_spicy_vulture",
+      "breakpoints": true
     }
   ]
 }
