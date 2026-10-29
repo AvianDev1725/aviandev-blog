@@ -8,7 +8,18 @@ import { contentText, richTextText } from '../app/(dashboard)/content/text';
 import { emailKeys, emailText } from '../../api/src/content/email-text';
 import { categoriesText } from '../app/(dashboard)/categories/text';
 import { postEditorText, postsText } from '../app/(dashboard)/posts/text';
-import { categoryText, homeText, postText, seoText, siteText, previewText, accountText, commentText, searchText } from '../../web/app/text';
+import {
+  askText,
+  categoryText,
+  homeText,
+  postText,
+  seoText,
+  siteText,
+  previewText,
+  accountText,
+  commentText,
+  searchText,
+} from '../../web/app/text';
 import { adminSeoText } from '../app/seo-text';
 import { commentsText } from '../app/(dashboard)/comments/text';
 import { insightsText } from '../app/(dashboard)/insights/text';
@@ -217,5 +228,11 @@ export const cmsRegistry: CmsEntry[] = [
     name: 'Admin: search insights',
     description: 'The search insights page. Placeholders: {count}, {days}, {date}.',
     fallback: insightsText,
+  },
+  {
+    key: 'web-ask',
+    name: 'Blog: Ask AvianDev chat',
+    description: 'The Ask AvianDev button and chat. "Suggestions" is a list of starter questions separated by | (so questions can contain commas). Placeholders: {count}, {topic}, {n}, {title}.',
+    fallback: askText,
   },
 ];

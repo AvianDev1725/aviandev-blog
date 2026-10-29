@@ -3,11 +3,12 @@ import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import { isSafeLink } from '@aviandev/core/text';
 import AccountMenu from '@/components/account-menu';
+import AskLauncher from '@/components/ask/ask-launcher';
 import BackButton from '@/components/back-button';
 import SearchBox from '@/components/search/search-box';
 import { getContentByCMS } from '@/lib/content';
 import { siteUrl } from '@/lib/site';
-import { accountText, searchText, seoText, siteText } from './text';
+import { accountText, askText, searchText, seoText, siteText } from './text';
 import './globals.css';
 
 export const viewport: Viewport = {
@@ -45,11 +46,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [text, account, search, seo] = await Promise.all([
+  const [text, account, search, seo, ask] = await Promise.all([
     getContentByCMS('web-site', siteText),
     getContentByCMS('web-account', accountText),
     getContentByCMS('web-search', searchText),
     getContentByCMS('web-seo', seoText),
+    getContentByCMS('web-ask', askText),
   ]);
   const searchIcon = [seo.appIcon, seo.favicon].find((src) => isSafeLink(src));
 
@@ -103,6 +105,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <footer className="border-t border-zinc-200 pb-[env(safe-area-inset-bottom)]">
           <p className="mx-auto max-w-3xl px-4 py-8 text-sm text-zinc-500">{text.footerCopyright}</p>
         </footer>
+
+        <AskLauncher text={ask} />
       </body>
     </html>
   );

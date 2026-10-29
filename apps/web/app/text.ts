@@ -194,3 +194,47 @@ export const searchText = {
 };
 
 export type SearchText = typeof searchText;
+
+export const askText = {
+  button: 'Ask AvianDev',
+  title: 'Ask AvianDev',
+  subtitle: 'Answers from AvianDev posts',
+  botLabel: 'Avian bot',
+  welcomeTitle: "Hi, I'm Avian bot",
+  welcomeBody: "Ask me anything about the posts on this blog. I'll answer from them and show you where to read more.",
+  suggestions: 'How does a GSAP timeline work? | How do I get started with GSAP? | What are common GSAP mistakes?',
+  placeholder: 'Ask about any AvianDev post…',
+  inputLabel: 'Ask a question about the blog',
+  send: 'Send',
+  stop: 'Stop',
+  newChat: 'New chat',
+  close: 'Close',
+  disclaimer: 'Answers come only from AvianDev posts and can be wrong. Check the linked sections.',
+  searching: 'Searching the blog…',
+  readingOne: 'Reading 1 section…',
+  readingMany: 'Reading {count} sections…',
+  sourcesTitle: 'From these sections',
+  introduction: 'Introduction',
+  citeLabel: 'Source {n}: {title}',
+  followUpsTitle: 'Ask next',
+  followUp: 'Tell me more about {topic}',
+  helpful: 'Helpful',
+  notHelpful: 'Not helpful',
+  thanks: 'Thanks for the feedback!',
+  copy: 'Copy',
+  copied: 'Copied',
+  notFound: "I couldn't find that in AvianDev posts yet, so I'd rather not guess. I've noted the question so it can become a future post.",
+  searchInstead: 'Search the blog instead',
+  stopped: 'Stopped.',
+  tryAgain: 'Try again',
+  answerReady: 'Answer ready.',
+  errorProvider: 'Avian bot is having trouble right now. Try again in a minute.',
+  errorNetwork: "Couldn't reach Avian bot. Check your connection and try again.",
+  errorDisabled: 'Ask AvianDev is turned off right now.',
+  errorDailyLimit: 'Avian bot has answered a lot of questions today. Search still works any time.',
+  errorReaderLimit: "You've asked a lot today! Avian bot will be back tomorrow. Search still works any time.",
+  remainingOne: '1 question left today.',
+  remainingMany: '{count} questions left today.',
+};
+
+export type AskText = typeof askText;

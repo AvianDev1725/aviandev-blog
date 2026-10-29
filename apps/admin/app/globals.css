@@ -28,6 +28,29 @@ a, button, input, select, textarea, label, summary {
   }
 }
 
+/* ---------- Focus ---------- */
+
+/* Buttons and links: a ring only for keyboard users (never on click or tap). */
+:focus-visible {
+  outline: 2px solid #14b8a6;
+  outline-offset: 2px;
+}
+
+/* Text fields: a soft teal glow instead of the black border. */
+input:not([type='checkbox']):not([type='radio']):not([type='range']):focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #5eead4;
+  box-shadow: 0 0 0 3px rgb(94 234 212 / 0.3);
+}
+
+/* The rich text editor is a big writing area: no glow around it. */
+.ProseMirror:focus,
+.ProseMirror:focus-visible {
+  outline: none;
+}
+
 /* ---------- Rich text editor and preview ---------- */
 
 .rich-text { color: #27272a; line-height: 1.7; }
