@@ -22,7 +22,13 @@ import {
 } from '../../web/app/text';
 import { adminSeoText } from '../app/seo-text';
 import { commentsText } from '../app/(dashboard)/comments/text';
-import { insightsText } from '../app/(dashboard)/insights/text';
+import {
+  insightsAskText,
+  insightsContentText,
+  insightsSearchText,
+  insightsSharedText,
+  insightsTrafficText,
+} from '../app/(dashboard)/insights/text';
 import { assistantText, avianBotText } from '../app/(dashboard)/assistant/text';
 
 type Value = string | number | boolean;
@@ -225,10 +231,34 @@ export const cmsRegistry: CmsEntry[] = [
     fallback: searchText,
   },
   {
-    key: 'admin-insights',
-    name: 'Admin: search insights',
-    description: 'The search insights page. Placeholders: {count}, {days}, {date}.',
-    fallback: insightsText,
+    key: 'admin-analytics',
+    name: 'Admin: insights (shared)',
+    description: 'Title, tabs, time period and words used on every Insights tab. Placeholders: {days}, {date}.',
+    fallback: insightsSharedText,
+  },
+  {
+    key: 'admin-analytics-traffic',
+    name: 'Admin: insights, Overview and Traffic',
+    description: 'Cards on the Overview and Traffic tabs, including sources, devices and the privacy note.',
+    fallback: insightsTrafficText,
+  },
+  {
+    key: 'admin-analytics-content',
+    name: 'Admin: insights, Content and People',
+    description: 'Cards on the Content and People tabs.',
+    fallback: insightsContentText,
+  },
+  {
+    key: 'admin-analytics-search',
+    name: 'Admin: insights, Search',
+    description: 'The Search tab: funnel, content ideas and top searches. Placeholders: {count}.',
+    fallback: insightsSearchText,
+  },
+  {
+    key: 'admin-analytics-ask',
+    name: 'Admin: insights, Ask AvianDev',
+    description: 'The Ask AvianDev tab: questions, unanswered ideas and most-used sections. Placeholders: {count}.',
+    fallback: insightsAskText,
   },
   {
     key: 'web-ask',

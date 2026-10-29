@@ -362,3 +362,130 @@ select:focus {
   border-color: transparent;
   box-shadow: none;
 }
+
+/* ---------- Insights ---------- */
+
+:root {
+  --chart-1: #0d9488; /* teal */
+  --chart-2: #eb6834; /* orange */
+  --chart-3: #6250d6; /* violet */
+}
+
+.chart-line {
+  stroke-dasharray: var(--len, 2000);
+  stroke-dashoffset: var(--len, 2000);
+  animation: chart-draw 1s cubic-bezier(0.3, 0.7, 0.2, 1) forwards;
+}
+
+.chart-area {
+  opacity: 0;
+  animation: chart-fade 0.7s 0.25s ease forwards;
+}
+
+.chart-bar {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: chart-grow-y 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.chart-grow-x {
+  transform-origin: left;
+  animation: chart-grow-x 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.insights-tip {
+  animation: chart-fade 0.12s ease both;
+}
+
+.insights-view-in {
+  animation: insights-view-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.insights-row {
+  animation: insights-row 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.insights-enter-right {
+  animation: insights-enter-right 0.34s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.insights-enter-left {
+  animation: insights-enter-left 0.34s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.insights-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: #ececef;
+}
+
+.insights-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.7), transparent);
+  animation: insights-shimmer 1.3s ease-in-out infinite;
+}
+
+@keyframes chart-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes chart-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes chart-grow-y {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+@keyframes chart-grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes insights-view-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes insights-row {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes insights-enter-right {
+  from { opacity: 0; transform: translateX(28px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes insights-enter-left {
+  from { opacity: 0; transform: translateX(-28px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes insights-shimmer {
+  to { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-line,
+  .chart-area,
+  .chart-bar,
+  .chart-grow-x,
+  .insights-tip,
+  .insights-view-in,
+  .insights-row,
+  .insights-enter-right,
+  .insights-enter-left {
+    animation: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  .insights-shimmer::after {
+    animation: none;
+  }
+}
