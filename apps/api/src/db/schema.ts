@@ -288,3 +288,25 @@ export const askEvents = pgTable(
     index('ask_events_visitor_idx').on(table.visitor, table.createdAt),
   ],
 );
+
+export const pageVisits = pgTable(
+  'page_visits',
+  {
+    id: text('id').primaryKey(),
+    path: text('path').notNull(),
+    postId: integer('post_id').references(() => posts.id, { onDelete: 'set null' }),
+    visitor: text('visitor').notNull(),
+    landing: boolean('landing').notNull().default(false),
+    returning: boolean('returning').notNull().default(false),
+    source: text('source').notNull().default('internal'),
+    referrerHost: text('referrer_host'),
+    device: text('device').notNull().default('desktop'),
+    signedIn: boolean('signed_in').notNull().default(false),
+    readDepth: integer('read_depth').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('page_visits_created_idx').on(table.createdAt),
+    index('page_visits_post_idx').on(table.postId, table.createdAt),
+  ],
+);

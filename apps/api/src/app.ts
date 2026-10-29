@@ -33,6 +33,7 @@ import searchRoute from './routes/search.js';
 import insights from './routes/insights.js';
 import askRoute from './routes/ask.js';
 import assistantRoute from './routes/assistant.js';
+import trackRoute from './routes/track.js';
 
 const app = new Hono<AuthEnv>();
 
@@ -57,6 +58,7 @@ app.route('/search', searchRoute);
 app.route('/insights', insights);
 app.route('/ask', askRoute);
 app.route('/assistant', assistantRoute);
+app.route('/track', trackRoute);
 
 app.get('/', (c) => c.text('Hello Hono!'));
 

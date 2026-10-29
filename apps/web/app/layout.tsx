@@ -6,6 +6,7 @@ import AccountMenu from '@/components/account-menu';
 import AskLauncher from '@/components/ask/ask-launcher';
 import BackButton from '@/components/back-button';
 import SearchBox from '@/components/search/search-box';
+import VisitTracker from '@/components/analytics/visit-tracker';
 import { getContentByCMS } from '@/lib/content';
 import { siteUrl } from '@/lib/site';
 import { accountText, askText, searchText, seoText, siteText } from './text';
@@ -105,7 +106,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <footer className="border-t border-zinc-200 pb-[env(safe-area-inset-bottom)]">
           <p className="mx-auto max-w-3xl px-4 py-8 text-sm text-zinc-500">{text.footerCopyright}</p>
         </footer>
-
+        <Suspense fallback={null}>
+          <VisitTracker />
+        </Suspense>
         <AskLauncher text={ask} />
       </body>
     </html>

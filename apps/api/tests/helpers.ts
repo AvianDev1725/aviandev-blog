@@ -1,6 +1,6 @@
 import app from '../src/app.js';
 import { db } from '../src/db/index.js';
-import { categories, invitations, posts, users, contentModels, contentFragments, media, postViews, viewVisitors, userTokens, comments, searchEvents, dismissedSearches, askEvents, assistantSettings } from '../src/db/schema.js';
+import { categories, invitations, posts, users, contentModels, contentFragments, media, postViews, viewVisitors, userTokens, comments, searchEvents, dismissedSearches, askEvents, assistantSettings, pageVisits } from '../src/db/schema.js';
 import { hashPassword } from '../src/lib/password.js';
 
 export const PASSWORD = 'test-password-123';
@@ -47,6 +47,7 @@ export async function resetDb() {
   await db.delete(categories);
   await db.delete(askEvents);
   await db.delete(assistantSettings);
+  await db.delete(pageVisits);
   await db.delete(users);
   await db.delete(viewVisitors);
   await db.delete(postViews);
