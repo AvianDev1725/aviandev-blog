@@ -23,6 +23,7 @@ import {
 import { adminSeoText } from '../app/seo-text';
 import { commentsText } from '../app/(dashboard)/comments/text';
 import { insightsText } from '../app/(dashboard)/insights/text';
+import { assistantText, avianBotText } from '../app/(dashboard)/assistant/text';
 
 type Value = string | number | boolean;
 
@@ -234,5 +235,17 @@ export const cmsRegistry: CmsEntry[] = [
     name: 'Blog: Ask AvianDev chat',
     description: 'The Ask AvianDev button and chat. "Suggestions" is a list of starter questions separated by | (so questions can contain commas). Placeholders: {count}, {topic}, {n}, {title}.',
     fallback: askText,
+  },
+  {
+    key: 'admin-assistant',
+    name: 'Admin: Ask AvianDev settings',
+    description: 'The settings page for both bots. Placeholders: {env}, {model}, {ms}, {error}.',
+    fallback: assistantText,
+  },
+  {
+    key: 'admin-avian-bot',
+    name: 'Admin: Avian bot',
+    description: 'The Avian bot chat in the admin. "Suggestions" are separated by |. Placeholders: {n}, {title}.',
+    fallback: avianBotText,
   },
 ];

@@ -1,7 +1,10 @@
+import { Suspense } from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import AdminBot from '@/components/avian-bot/admin-bot';
 import { apiGet, getCurrentUser } from '@/lib/api';
 import { getContentByCMS } from '@/lib/content';
+import { avianBotText } from './assistant/text';
 import MobileNav from './mobile-nav';
 import Sidebar from './sidebar';
 import { shellText } from './text';
@@ -13,10 +16,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!user) redirect('/login');
   if (user.role === 'reader') redirect(process.env.BLOG_URL ?? 'http://localhost:3002');
 
-  const [text, cookieStore, summary] = await Promise.all([
+  const [text, cookieStore, summary, bot, botText] = await Promise.all([
     getContentByCMS('admin-shell', shellText),
     cookies(),
     apiGet<{ pending: number }>('/moderation/summary'),
+    apiGet<{ enabled: boolean }>('/assistant/config'),
+    getContentByCMS('admin-avian-bot', avianBotText),
   ]);
   const collapsed = cookieStore.get('sidebar')?.value === 'collapsed';
   const roleLabels = { reader: text.roleReader, admin: text.roleAdmin, super_admin: text.roleSuperAdmin };
@@ -30,6 +35,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <MobileNav user={navUser} labels={text} badges={badges} />
         <main className="min-w-0 flex-1 p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] md:p-6">{children}</main>
       </div>
+      {bot?.enabled && (
+        <Suspense fallback={null}>
+          <AdminBot text={botText} />
+        </Suspense>
+      )}
     </div>
   );
 }

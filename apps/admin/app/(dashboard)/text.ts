@@ -17,6 +17,7 @@ export const shellText = {
   comments: 'Comments',
   waitingCount: '{count} waiting',
   insights: 'Search insights',
+  assistant: 'Ask AvianDev',
 };
 
 export const dashboardText = {

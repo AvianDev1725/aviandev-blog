@@ -11,7 +11,10 @@ const nextConfig: NextConfig = {
   transpilePackages: ['@aviandev/core'],
   allowedDevOrigins: ['192.168.1.4'],
   async rewrites() {
-    return [{ source: '/media/:path*', destination: `${API_URL}/media/:path*` }, { source: '/api/:path*', destination: `${process.env.API_URL}/:path*` },];
+    return [
+      { source: '/media/:path*', destination: `${API_URL}/media/:path*` },
+      { source: '/api/:path*', destination: `${API_URL}/:path*` },
+    ];
   },
 };
 
