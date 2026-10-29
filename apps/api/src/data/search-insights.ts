@@ -66,7 +66,7 @@ export async function dismissSearch(query: string, userId: number) {
     .onConflictDoUpdate({ target: dismissedSearches.query, set: { dismissedAt: new Date(), dismissedBy: userId } });
 }
 
-async function resolveSections(urls: string[]) {
+export async function resolveSections(urls: string[]) {
   const parsed = urls.map((url) => {
     const [path, anchor = ''] = url.split('#');
     return { url, slug: path.replace(/^\/posts\//, ''), anchor };

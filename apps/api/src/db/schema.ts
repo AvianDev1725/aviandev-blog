@@ -279,6 +279,7 @@ export const askEvents = pgTable(
     audience: text('audience').notNull().default('reader'),
     sourceCount: integer('source_count').notNull().default(0),
     helpful: boolean('helpful'),
+    citedUrls: text('cited_urls').array().notNull().default(sql`'{}'::text[]`),
     provider: text('provider').notNull(),
     model: text('model').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),

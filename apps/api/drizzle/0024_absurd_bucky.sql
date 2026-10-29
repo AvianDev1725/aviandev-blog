@@ -1,0 +1,1 @@
+ALTER TABLE "ask_events" ADD COLUMN "cited_urls" text[] DEFAULT '{}'::text[] NOT NULL;

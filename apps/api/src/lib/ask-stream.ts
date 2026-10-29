@@ -36,7 +36,7 @@ export function streamAsk(
     sources: AskSource[];
     /** Readers: answer "not found" without calling the model when no sections match. */
     requireSources: boolean;
-    log: (status: AskStatus) => Promise<unknown>;
+    log: (status: AskStatus, citedUrls: string[]) => Promise<unknown>;
   },
 ) {
   const { id, settings, system, messages, sources, requireSources, log } = options;
@@ -50,6 +50,7 @@ export function streamAsk(
 
     let status: AskStatus = 'answered';
     let answer = '';
+    let citedUrls: string[] = [];
     const send = (event: string, data: unknown) => stream.writeSSE({ event, data: JSON.stringify(data) });
 
     try {
@@ -86,6 +87,7 @@ export function streamAsk(
       if (!streaming && held) await send('delta', { text: held });
 
       const cited = citedNumbers(answer, sources.length);
+      citedUrls = cited.flatMap((n) => sources.find((source) => source.n === n)?.url ?? []);
       await send('done', { id, cited, followUps: followUpTopics(sources, cited) });
     } catch (error) {
       if (controller.signal.aborted) return;
@@ -93,7 +95,7 @@ export function streamAsk(
       console.error('Ask failed:', error instanceof Error ? error.message : error);
       await send('error', { code: 'provider_error' });
     } finally {
-      await log(status).catch(() => {});
+      await log(status, citedUrls).catch(() => {});
     }
   });
 }

@@ -92,8 +92,14 @@ export async function logAsk(event: {
   provider: string;
   model: string;
   audience?: 'reader' | 'staff';
+  citedUrls?: string[];
 }) {
-  await db.insert(askEvents).values({ ...event, audience: event.audience ?? 'reader', question: normalizeQuery(event.question) });
+  await db.insert(askEvents).values({
+    ...event,
+    audience: event.audience ?? 'reader',
+    citedUrls: event.citedUrls ?? [],
+    question: normalizeQuery(event.question),
+  });
 }
 
 export async function saveFeedback(id: string, helpful: boolean) {
