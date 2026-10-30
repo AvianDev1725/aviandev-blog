@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
         'content-type': 'application/json',
         cookie: request.headers.get('cookie') ?? '',
         'user-agent': request.headers.get('user-agent') ?? '',
+        'x-forwarded-for': request.headers.get('x-forwarded-for') ?? '',
       },
       body: await request.text(),
       signal: request.signal,

@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { secureHeaders } from 'hono/secure-headers';
 import { requireAuth, requireRole, type AuthEnv } from './middleware/auth.js';
 import { createPostSchema, updatePostSchema } from './schemas/post.js';
 import {
@@ -38,6 +39,32 @@ import trackRoute from './routes/track.js';
 const app = new Hono<AuthEnv>();
 
 const canWrite = [requireAuth, requireRole('admin', 'super_admin')] as const;
+
+/*
+ * Security headers on every API response.
+ * No CORS on purpose: browsers reach the API only through the blog and admin
+ * (same site), so other websites can't call it from a visitor's browser.
+ */
+app.use(
+  '*',
+  secureHeaders({
+    xFrameOptions: 'DENY',
+    referrerPolicy: 'strict-origin-when-cross-origin',
+    strictTransportSecurity: 'max-age=63072000; includeSubDomains',
+  }),
+);
+
+/*
+ * The API only returns JSON and images, so by default it may load nothing and never
+ * be framed. Routes that set their own policy keep it, e.g. media serves SVGs with
+ * a sandbox so scripts inside an uploaded SVG can't run.
+ */
+app.use('*', async (c, next) => {
+  await next();
+  if (!c.res.headers.has('Content-Security-Policy')) {
+    c.res.headers.set('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'");
+  }
+});
 
 app.route('/auth', auth);
 app.route('/users', usersRoute);
