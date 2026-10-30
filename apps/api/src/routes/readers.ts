@@ -19,6 +19,8 @@ const resetSchema = z.object({ token: z.string().min(1).max(200), password: pass
 
 const FIFTEEN_MINUTES = 15 * 60 * 1000;
 const INVALID_LINK = 'This link is invalid or has expired';
+/** Lets the blog tell a bad link apart from other errors, like a weak password. */
+const INVALID_LINK_CODE = 'invalid_link';
 
 type Recipient = { id: number; email: string; name: string; firstName: string | null };
 
@@ -52,7 +54,7 @@ readers.post('/signup', rateLimit({ windowMs: FIFTEEN_MINUTES, max: 5 }), valida
 
 readers.post('/verify-email', rateLimit({ windowMs: FIFTEEN_MINUTES, max: 20 }), validateJson(tokenSchema), async (c) => {
   const userId = await consumeUserToken(c.req.valid('json').token, 'verify_email');
-  if (!userId) return c.json({ error: INVALID_LINK }, 400);
+  if (!userId) return c.json({ error: INVALID_LINK, code: INVALID_LINK_CODE }, 400);
 
   const [user] = await db
     .update(users)
@@ -94,7 +96,7 @@ readers.post('/reset-password', rateLimit({ windowMs: FIFTEEN_MINUTES, max: 10 }
   const passwordHash = await hashPassword(password);
 
   const userId = await consumeUserToken(token, 'reset_password');
-  if (!userId) return c.json({ error: INVALID_LINK }, 400);
+  if (!userId) return c.json({ error: INVALID_LINK, code: INVALID_LINK_CODE }, 400);
 
   await db
     .update(users)

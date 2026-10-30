@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
-import FormError from '@/components/form-error';
 import SubmitButton from '@/components/submit-button';
 import TextField from '@/components/text-field';
 import { postApi } from '@/lib/client';
@@ -12,15 +11,13 @@ import type { AccountText } from '../text';
 export default function ResetForm({ text }: { text: AccountText }) {
   const token = useLinkToken();
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  const [fields, setFields] = useState<Record<string, string>>({});
+  const [passwordError, setPasswordError] = useState('');
   const [invalid, setInvalid] = useState(!token);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
-    setError('');
-    setFields({});
+    setPasswordError('');
 
     const result = await postApi('/readers/reset-password', {
       token,
@@ -29,9 +26,10 @@ export default function ResetForm({ text }: { text: AccountText }) {
     if (result.ok) return window.location.assign('/');
 
     setBusy(false);
-    if (Object.keys(result.fields).length > 0) return setFields(result.fields);
-    if (result.error) return setInvalid(true);
-    setError(text.genericError);
+    // Only a truly bad or already-used link shows the "expired" screen.
+    if (result.code === 'invalid_link') return setInvalid(true);
+    // Every other error (weak password, too many tries, server problem) shows under the box.
+    setPasswordError(result.fields.password || result.error || text.genericError);
   }
 
   if (invalid) {
@@ -48,7 +46,6 @@ export default function ResetForm({ text }: { text: AccountText }) {
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5">
-      <FormError message={error} />
       <TextField
         name="password"
         type="password"
@@ -56,7 +53,7 @@ export default function ResetForm({ text }: { text: AccountText }) {
         hint={text.passwordHint}
         autoComplete="new-password"
         required
-        error={fields.password}
+        error={passwordError}
       />
       <SubmitButton busy={busy} label={text.resetSubmit} busyLabel={text.saving} />
     </form>
