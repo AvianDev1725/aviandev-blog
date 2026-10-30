@@ -52,11 +52,10 @@ export default function AskLauncher({ text }: { text: AskText }) {
           setStarted(true);
           setOpen(true);
         }}
-        className={`ask-fab fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-30 flex items-center gap-2.5 rounded-full bg-slate-900 py-1.5 pl-1.5 pr-4 font-semibold text-white shadow-[0_10px_30px_rgb(15_23_42/0.28)] transition-[transform,opacity] duration-200 active:scale-95 ${
-          open ? 'pointer-events-none scale-90 opacity-0' : ''
-        }`}
+        className={`ask-fab fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-30 flex items-center gap-2.5 rounded-full bg-[#0f172a] py-1.5 pl-1.5 pr-4 font-semibold text-[#ffffff] shadow-[0_10px_30px_rgb(15_23_42/0.28)] ring-1 ring-[#ffffff]/10 transition-[transform,opacity] duration-200 active:scale-95 ${open ? 'pointer-events-none scale-90 opacity-0' : ''
+          }`}
       >
-        <span className="rounded-full bg-slate-800 p-0.5">
+        <span className="rounded-full bg-[#1e293b] p-0.5">
           <AvianBot size={36} />
         </span>
         {text.button}

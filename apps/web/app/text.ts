@@ -238,3 +238,8 @@ export const askText = {
 };
 
 export type AskText = typeof askText;
+
+export const themeText = {
+  toDark: 'Switch to dark mode',
+  toLight: 'Switch to light mode',
+};

@@ -19,6 +19,7 @@ import {
   accountText,
   commentText,
   searchText,
+  themeText,
 } from '../../web/app/text';
 import { adminSeoText } from '../app/seo-text';
 import { commentsText } from '../app/(dashboard)/comments/text';
@@ -30,6 +31,7 @@ import {
   insightsTrafficText,
 } from '../app/(dashboard)/insights/text';
 import { assistantText, avianBotText } from '../app/(dashboard)/assistant/text';
+import { adminThemeText } from '../app/theme-text';
 
 type Value = string | number | boolean;
 
@@ -243,6 +245,12 @@ export const cmsRegistry: CmsEntry[] = [
     fallback: insightsTrafficText,
   },
   {
+    key: 'admin-theme',
+    name: 'Admin: Dark mode button',
+    description: 'Labels for the sun/moon button in the admin top bar. Screen readers read them, and they show as a tooltip on hover.',
+    fallback: adminThemeText,
+  },
+  {
     key: 'admin-analytics-content',
     name: 'Admin: insights, Content and People',
     description: 'Cards on the Content and People tabs.',
@@ -265,6 +273,12 @@ export const cmsRegistry: CmsEntry[] = [
     name: 'Blog: Ask AvianDev chat',
     description: 'The Ask AvianDev button and chat. "Suggestions" is a list of starter questions separated by | (so questions can contain commas). Placeholders: {count}, {topic}, {n}, {title}.',
     fallback: askText,
+  },
+  {
+    key: 'web-theme',
+    name: 'Blog: Dark mode button',
+    description: 'Labels for the sun/moon button in the header. Screen readers read them, and they show as a tooltip on hover.',
+    fallback: themeText,
   },
   {
     key: 'admin-assistant',

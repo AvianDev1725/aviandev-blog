@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { LogOut, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import ThemeToggle from '@/components/theme-toggle';
 import { fill } from '@/lib/text';
 import { isActivePath, navItems, type NavBadges, type Role, type SidebarLabels } from './nav-items';
 
@@ -12,11 +13,12 @@ export type { SidebarLabels } from './nav-items';
 type SidebarProps = {
   user: { name: string; role: Role; roleLabel: string };
   labels: SidebarLabels;
+  themeLabels: { toDark: string; toLight: string };
   initialCollapsed: boolean;
   badges: NavBadges;
 };
 
-export default function Sidebar({ user, labels, initialCollapsed, badges }: SidebarProps) {
+export default function Sidebar({ user, labels, themeLabels, initialCollapsed, badges }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(initialCollapsed);
@@ -93,12 +95,15 @@ export default function Sidebar({ user, labels, initialCollapsed, badges }: Side
       </nav>
 
       <div className="border-t border-zinc-200 p-2">
-        {!collapsed && (
-          <div className="px-3 py-2">
-            <p className="truncate text-sm font-medium text-zinc-900">{user.name}</p>
-            <p className="text-xs text-zinc-500">{user.roleLabel}</p>
-          </div>
-        )}
+        <div className={`flex items-center gap-2 ${collapsed ? 'justify-center pb-1' : 'py-1 pl-3'}`}>
+          {!collapsed && (
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-zinc-900">{user.name}</p>
+              <p className="text-xs text-zinc-500">{user.roleLabel}</p>
+            </div>
+          )}
+          <ThemeToggle toDark={themeLabels.toDark} toLight={themeLabels.toLight} />
+        </div>
         <button
           onClick={logout}
           title={collapsed ? labels.logout : undefined}

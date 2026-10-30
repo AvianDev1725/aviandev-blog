@@ -199,7 +199,7 @@ export default function AdminBot({ text }: { text: AvianBotText }) {
           setStarted(true);
           setOpen(true);
         }}
-        className={`fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-30 rounded-full bg-slate-900 p-1 shadow-[0_10px_30px_rgb(15_23_42/0.28)] transition-[transform,opacity] duration-200 active:scale-95 md:bottom-6 md:right-6 ${
+        className={`fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-30 rounded-full bg-[#0f172a] p-1 shadow-[0_10px_30px_rgb(15_23_42/0.28)] ring-1 ring-[#ffffff]/10 transition-[transform,opacity] duration-200 active:scale-95 md:bottom-6 md:right-6 ${
           open ? 'pointer-events-none scale-90 opacity-0' : ''
         } ${onEditor ? 'max-md:hidden' : ''}`}
       >
@@ -209,7 +209,7 @@ export default function AdminBot({ text }: { text: AvianBotText }) {
       {started && (
         <>
           <div
-            className={`fixed inset-0 z-40 bg-zinc-900/30 transition-opacity duration-300 ${open ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+            className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${open ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
             onClick={close}
             aria-hidden
           />

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { LogOut, MoreHorizontal } from 'lucide-react';
+import ThemeToggle from '@/components/theme-toggle';
 import { fill } from '@/lib/text';
 import { isActivePath, navItems, type NavBadges, type Role, type SidebarLabels } from './nav-items';
 
@@ -13,10 +14,11 @@ const FULL_SCREEN_PAGES = /^\/posts\/(new|\d+)$/;
 type Props = {
   user: { name: string; role: Role; roleLabel: string };
   labels: SidebarLabels;
+  themeLabels: { toDark: string; toLight: string };
   badges: NavBadges;
 };
 
-export default function MobileNav({ user, labels, badges }: Props) {
+export default function MobileNav({ user, labels, themeLabels, badges }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
@@ -81,8 +83,9 @@ export default function MobileNav({ user, labels, badges }: Props) {
 
   return (
     <>
-      <header className="sticky top-0 z-30 box-content flex h-14 items-center border-b border-zinc-200 bg-white px-4 pt-[env(safe-area-inset-top)] md:hidden">
+      <header className="sticky top-0 z-30 box-content flex h-14 items-center justify-between gap-3 border-b border-zinc-200 bg-white pl-4 pr-2 pt-[env(safe-area-inset-top)] md:hidden">
         <span className="truncate font-semibold text-zinc-900">{labels.appName}</span>
+        <ThemeToggle toDark={themeLabels.toDark} toLight={themeLabels.toLight} />
       </header>
 
       {showTabs && (

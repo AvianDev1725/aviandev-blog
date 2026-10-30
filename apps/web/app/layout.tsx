@@ -6,16 +6,19 @@ import AccountMenu from '@/components/account-menu';
 import AskLauncher from '@/components/ask/ask-launcher';
 import BackButton from '@/components/back-button';
 import SearchBox from '@/components/search/search-box';
+import ThemeToggle from '@/components/theme-toggle';
 import VisitTracker from '@/components/analytics/visit-tracker';
 import { getContentByCMS } from '@/lib/content';
 import { siteUrl } from '@/lib/site';
-import { accountText, askText, searchText, seoText, siteText } from './text';
+import { themeScript } from '@/lib/theme';
+import { accountText, askText, searchText, seoText, siteText, themeText } from './text';
 import './globals.css';
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  // The theme script swaps this to the dark colour at night, so the phone's browser bar matches.
   themeColor: '#ffffff',
 };
 
@@ -47,17 +50,22 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [text, account, search, seo, ask] = await Promise.all([
+  const [text, account, search, seo, ask, theme] = await Promise.all([
     getContentByCMS('web-site', siteText),
     getContentByCMS('web-account', accountText),
     getContentByCMS('web-search', searchText),
     getContentByCMS('web-seo', seoText),
     getContentByCMS('web-ask', askText),
+    getContentByCMS('web-theme', themeText),
   ]);
   const searchIcon = [seo.appIcon, seo.favicon].find((src) => isSafeLink(src));
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Picks light or dark before the page paints, so there's no white flash at night. */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="flex min-h-screen flex-col bg-white text-zinc-900 antialiased" suppressHydrationWarning>
         <a
           href="#main"
@@ -84,6 +92,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </div>
 
             <div className="flex shrink-0 items-center gap-1 sm:gap-3">
+              <ThemeToggle toDark={theme.toDark} toLight={theme.toLight} />
               <nav aria-label={text.navLabel}>
                 <Link
                   href="/categories"

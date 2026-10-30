@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import AdminBot from '@/components/avian-bot/admin-bot';
 import { apiGet, getCurrentUser } from '@/lib/api';
 import { getContentByCMS } from '@/lib/content';
+import { adminThemeText } from '../theme-text';
 import { avianBotText } from './assistant/text';
 import MobileNav from './mobile-nav';
 import Sidebar from './sidebar';
@@ -16,12 +17,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!user) redirect('/login');
   if (user.role === 'reader') redirect(process.env.BLOG_URL ?? 'http://localhost:3002');
 
-  const [text, cookieStore, summary, bot, botText] = await Promise.all([
+  const [text, cookieStore, summary, bot, botText, theme] = await Promise.all([
     getContentByCMS('admin-shell', shellText),
     cookies(),
     apiGet<{ pending: number }>('/moderation/summary'),
     apiGet<{ enabled: boolean }>('/assistant/config'),
     getContentByCMS('admin-avian-bot', avianBotText),
+    getContentByCMS('admin-theme', adminThemeText),
   ]);
   const collapsed = cookieStore.get('sidebar')?.value === 'collapsed';
   const roleLabels = { reader: text.roleReader, admin: text.roleAdmin, super_admin: text.roleSuperAdmin };
@@ -30,9 +32,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="flex min-h-screen bg-zinc-50">
-      <Sidebar user={navUser} labels={text} initialCollapsed={collapsed} badges={badges} />
+      <Sidebar user={navUser} labels={text} themeLabels={theme} initialCollapsed={collapsed} badges={badges} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <MobileNav user={navUser} labels={text} badges={badges} />
+        <MobileNav user={navUser} labels={text} themeLabels={theme} badges={badges} />
         <main className="min-w-0 flex-1 p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] md:p-6">{children}</main>
       </div>
       {bot?.enabled && (
