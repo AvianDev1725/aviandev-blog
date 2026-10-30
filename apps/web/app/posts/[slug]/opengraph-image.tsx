@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { getContentByCMS } from '@/lib/content';
-import { getPost, getPosts } from '@/lib/posts';
+import { getPost, getPosts, staticParams } from '@/lib/posts';
 import { siteText } from '../../text';
 import { isSafeLink } from '@aviandev/core/text';
 import { absoluteUrl } from '@/lib/site';
@@ -10,7 +10,7 @@ export const contentType = 'image/png';
 
 export async function generateStaticParams() {
   const posts = await getPosts();
-  return posts.map((post) => ({ slug: post.slug }));
+  return staticParams(posts.map((post) => post.slug));
 }
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {

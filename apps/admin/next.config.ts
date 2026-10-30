@@ -11,17 +11,17 @@ const lanAddresses = Object.values(networkInterfaces())
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  partialPrefetching: true,
+  experimental: {
+    agentFeedback: true,
+  },
+  allowedDevOrigins: lanAddresses,
   async rewrites() {
     return [
       { source: '/api/:path*', destination: `${API_URL}/:path*` },
       { source: '/media/:path*', destination: `${API_URL}/media/:path*` },
     ];
   },
-  experimental: {
-    agentFeedback: true,
-  },
-  allowedDevOrigins: lanAddresses,
-  partialPrefetching: true,
   turbopack: {
     rules: {
       '*.css': {

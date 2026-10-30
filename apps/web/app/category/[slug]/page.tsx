@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PostList from '@/components/post-list';
 import { getContentByCMS } from '@/lib/content';
-import { getCategories, getPosts } from '@/lib/posts';
+import { getCategories, getPosts, staticParams } from '@/lib/posts';
 import { categoryText } from '../../text';
 
 type Props = { params: Promise<{ slug: string }> };
@@ -15,7 +15,7 @@ async function findCategory(slug: string) {
 
 export async function generateStaticParams() {
   const categories = await getCategories();
-  return categories.map((category) => ({ slug: category.slug }));
+  return staticParams(categories.map((category) => category.slug));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

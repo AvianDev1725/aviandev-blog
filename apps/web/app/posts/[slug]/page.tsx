@@ -6,7 +6,7 @@ import PostView from '@/components/post-view';
 import ViewCounter from '@/components/view-counter';
 import { getComments } from '@/lib/comments';
 import { getContentByCMS } from '@/lib/content';
-import { getPost, getPosts, getRelatedPosts } from '@/lib/posts';
+import { PLACEHOLDER_SLUG, getPost, getPosts, getRelatedPosts, staticParams } from '@/lib/posts';
 import { absoluteUrl } from '@/lib/site';
 import { commentText, postText, siteText } from '../../text';
 import RelatedPosts from '@/components/related-posts';
@@ -15,7 +15,7 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
   const posts = await getPosts();
-  return posts.map((post) => ({ slug: post.slug }));
+  return staticParams(posts.map((post) => post.slug));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -48,6 +48,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;
+  // The build placeholder never has a post, so skip loading comments and related posts.
+  if (slug === PLACEHOLDER_SLUG) notFound();
+
   const [post, text, comments, commentLabels, related] = await Promise.all([
     getPost(slug),
     getContentByCMS('web-post', postText),
