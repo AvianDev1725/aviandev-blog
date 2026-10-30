@@ -35,8 +35,12 @@ import insights from './routes/insights.js';
 import askRoute from './routes/ask.js';
 import assistantRoute from './routes/assistant.js';
 import trackRoute from './routes/track.js';
+import { checkEnv } from './lib/env.js';
 
 const app = new Hono<AuthEnv>();
+
+// Stops a production server with a clear message if a setting is missing (skipped in tests).
+if (process.env.NODE_ENV !== 'test') checkEnv();
 
 const canWrite = [requireAuth, requireRole('admin', 'super_admin')] as const;
 
